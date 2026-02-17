@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AI Companion Bot v3.1</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-page">
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-logo">
+                <i class="fas fa-shield-halved"></i>
+                <span>Admin Panel</span>
+            </div>
+            <div class="admin-user-menu">
+                <button class="btn btn-secondary" id="homeBtn" title="Back to Home">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <div class="admin-user-info" id="adminUserInfo">
+                    <i class="fas fa-user-shield"></i>
+                    <span id="adminUsername">Admin</span>
+                </div>
+                <button class="btn btn-secondary" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <nav class="admin-nav">
+                <a href="#dashboard" class="admin-nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#users" class="admin-nav-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                <a href="#messages" class="admin-nav-item" data-section="messages">
+                    <i class="fas fa-comments"></i>
+                    <span>Message Analytics</span>
+                </a>
+                <a href="#archetypes" class="admin-nav-item" data-section="archetypes">
+                    <i class="fas fa-robot"></i>
+                    <span>Archetype Distribution</span>
+                </a>
+                <a href="#system" class="admin-nav-item" data-section="system">
+                    <i class="fas fa-cog"></i>
+                    <span>System Status</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="admin-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="admin-section active">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard Overview</h1>
+                    <button class="btn btn-primary" id="refreshDashboard">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-value" id="totalUsers">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Active Today</div>
+                            <div class="stat-value" id="activeUsers">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Messages</div>
+                            <div class="stat-value" id="totalMessages">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Admin Accounts</div>
+                            <div class="stat-value" id="adminCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-pie"></i> Archetype Distribution</h3>
+                        <canvas id="archetypeChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-bar"></i> User Activity (Last 7 Days)</h3>
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="adminApp.exportUserData()">
+                            <i class="fas fa-download"></i> Export User Data
+                        </button>
+                        <button class="action-btn" onclick="adminApp.showSection('messages')">
+                            <i class="fas fa-chart-line"></i> View Message Stats
+                        </button>
+                        <button class="action-btn" onclick="adminApp.showSection('system')">
+                            <i class="fas fa-server"></i> System Health
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="users" class="admin-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-users"></i> User Management</h1>
+                    <div class="header-actions">
+                        <input type="text" id="userSearch" class="search-input" placeholder="Search users...">
+                        <button class="btn btn-primary" id="refreshUsers">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User Filters -->
+                <div class="filters-bar">
+                    <select id="tierFilter" class="filter-select">
+                        <option value="">All Tiers</option>
+                        <option value="free">Free</option>
+                        <option value="pro">Pro</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                    <select id="roleFilter" class="filter-select">
+                        <option value="">All Roles</option>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Users Table -->
+                <div class="table-container">
+                    <table class="data-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Tier</th>
+                                <th>Messages</th>
+                                <th>Last Active</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="8" class="loading-cell">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="usersPagination">
+                    <button class="btn btn-secondary" id="prevPage" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span class="pagination-info" id="paginationInfo">Page 1 of 1</span>
+                    <button class="btn btn-secondary" id="nextPage">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Message Analytics Section -->
+            <section id="messages" class="admin-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-comments"></i> Message Analytics</h1>
+                    <div class="header-actions">
+                        <select id="messagesDays" class="filter-select">
+                            <option value="7">Last 7 Days</option>
+                            <option value="14">Last 14 Days</option>
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                        </select>
+                        <button class="btn btn-primary" id="refreshMessages">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Message Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Messages</div>
+                            <div class="stat-value" id="periodTotalMessages">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">User Messages</div>
+                            <div class="stat-value" id="userMessages">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Bot Messages</div>
+                            <div class="stat-value" id="botMessages">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Proactive Messages</div>
+                            <div class="stat-value" id="proactiveMessages">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Users Chart -->
+                <div class="chart-container full-width">
+                    <h3><i class="fas fa-trophy"></i> Top 10 Most Active Users</h3>
+                    <canvas id="topUsersChart"></canvas>
+                </div>
+
+                <!-- Message Type Distribution -->
+                <div class="message-type-list" id="messageTypeList">
+                    <h3><i class="fas fa-list"></i> Message Type Breakdown</h3>
+                    <div id="messageTypesContainer" class="message-types">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Archetype Distribution Section -->
+            <section id="archetypes" class="admin-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-robot"></i> Archetype Distribution</h1>
+                    <button class="btn btn-primary" id="refreshArchetypes">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Archetype Cards -->
+                <div class="archetype-grid" id="archetypeGrid">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Detailed Archetype Chart -->
+                <div class="chart-container full-width">
+                    <h3><i class="fas fa-chart-pie"></i> Detailed Archetype Analysis</h3>
+                    <canvas id="archetypeDetailChart"></canvas>
+                </div>
+            </section>
+
+            <!-- System Status Section -->
+            <section id="system" class="admin-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-cog"></i> System Status</h1>
+                    <button class="btn btn-primary" id="refreshSystem">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- System Health Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon status-ok">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Database</div>
+                            <div class="stat-value status-text" id="dbStatus">Connected</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon status-ok">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">API Server</div>
+                            <div class="stat-value status-text" id="apiStatus">Running</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon status-ok">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">OpenAI</div>
+                            <div class="stat-value status-text" id="openaiStatus">Active</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon status-ok">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Telegram Bot</div>
+                            <div class="stat-value status-text" id="telegramStatus">Active</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Info -->
+                <div class="system-info-grid">
+                    <div class="info-card">
+                        <h3><i class="fas fa-info-circle"></i> API Information</h3>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <span class="info-label">Version:</span>
+                                <span class="info-value" id="apiVersion">v3.1.0</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Model:</span>
+                                <span class="info-value" id="openaiModel">gpt-4</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Uptime:</span>
+                                <span class="info-value" id="systemUptime">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h3><i class="fas fa-chart-line"></i> Performance Metrics</h3>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <span class="info-label">Avg Response Time:</span>
+                                <span class="info-value" id="avgResponseTime">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Requests Today:</span>
+                                <span class="info-value" id="requestsToday">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Error Rate:</span>
+                                <span class="info-value" id="errorRate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Log -->
+                <div class="activity-log">
+                    <h3><i class="fas fa-history"></i> Recent System Activity</h3>
+                    <div id="activityLogContainer" class="log-container">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div id="userDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> User Details</h2>
+                <button class="modal-close" onclick="adminApp.closeUserModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="userDetailBody">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="adminApp.closeUserModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/admin.js"></script>
+</body>
+</html>

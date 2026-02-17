@@ -1,0 +1,42 @@
+
+admin@gmail.com
+Pass: Password
+
+source venv/bin/activate
+
+python backend/run.py --all   
+
+python backend/run.py --api
+
+
+sudo service redis-server start
+
+
+redis-cli ping
+
+
+python -c "from backend.database import init_db; import asyncio; asyncio.run(init_db())"
+
+
+cd frontend
+
+
+python3 -m http.server 8000
+
+
+
+lsof -i :8001
+kill 322665
+
+
+
+sudo systemctl enable warp-svc
+warp-cli connect
+warp-cli status
+warp-cli disconnect
+
+
+
+new...............................
+python run.py --all
+python3 -m http.server 8001

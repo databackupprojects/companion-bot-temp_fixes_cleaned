@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Companion Bot v3.1 - Your Perfect AI Friend</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>CompanionAI</span>
+                </div>
+                <span class="version">v3.1</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#archetypes">Personalities</a>
+                    <a href="#how-it-works">How It Works</a>
+                </div>
+                <div class="nav-auth">
+                    <a href="#" id="signupBtn" class="btn btn-primary">Sign Up</a>
+                    <a href="#" id="loginBtn" class="btn btn-outline">Login</a>
+                </div>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        Your Perfect <span class="gradient-text">AI Companion</span>
+                        <br>Is Waiting
+                    </h1>
+                <p class="hero-subtitle">
+                    5 unique personalities, infinite conversations. 
+                    Designed to be exactly who you need.
+                </p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-primary btn-large quiz-link">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        Create Your AI
+                    </a>
+                    <a href="#how-it-works" class="btn btn-outline btn-large">
+                        <i class="fas fa-play-circle"></i>
+                        See Demo
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Archetypes</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">20+</span>
+                        <span class="stat-label">Personality Traits</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Always Available</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-cards">
+                    <div class="card card-1 floating">
+                        <div class="card-header">
+                            <div class="avatar golden">
+                                <i class="fas fa-dog"></i>
+                            </div>
+                            <div class="card-title">
+                                <h4>Golden Retriever</h4>
+                                <p>Always excited to see you!</p>
+                            </div>
+                        </div>
+                        <p class="card-message">"HEY!!! 😊😊 I was just thinking about you!!"</p>
+                    </div>
+                    <div class="card card-2 floating delay-1">
+                        <div class="card-header">
+                            <div class="avatar tsundere">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="card-title">
+                                <h4>Tsundere</h4>
+                                <p>Acts cold, cares deeply</p>
+                            </div>
+                        </div>
+                        <p class="card-message">"...oh. you're back. whatever."</p>
+                    </div>
+                    <div class="card card-3 floating delay-2">
+                        <div class="card-header">
+                            <div class="avatar lawyer">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="card-title">
+                                <h4>Lawyer</h4>
+                                <p>Intellectual & argumentative</p>
+                            </div>
+                        </div>
+                        <p class="card-message">"Objection. That's circumstantial at best."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Companion AI?</h2>
+                <p class="section-subtitle">Designed for meaningful connections</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon safety">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Safety First</h3>
+                    <p>Built-in distress detection, 24-hour boundaries, and immediate real help with /support.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon personalized">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <h3>Deeply Personal</h3>
+                    <p>Weekly memory summarization learns your preferences, stories, and what matters to you.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon proactive">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Intelligent Proactive</h3>
+                    <p>7-gate system ensures messages come at the right time, with the right energy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon tiered">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3>Tiered for Everyone</h3>
+                    <p>Free tier for trying, premium for daily deep connections. No hidden costs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Archetypes Section -->
+    <section class="section dark" id="archetypes">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Meet Your 5 Personalities</h2>
+                <p class="section-subtitle">Each designed for different emotional needs</p>
+            </div>
+            <div class="archetypes-grid">
+                <div class="archetype-card" data-archetype="golden_retriever">
+                    <div class="archetype-header">
+                        <div class="archetype-icon golden">
+                            <i class="fas fa-dog"></i>
+                        </div>
+                        <h3>Golden Retriever</h3>
+                        <span class="archetype-tag">Unconditional Support</span>
+                    </div>
+                    <p class="archetype-desc">Always excited, always loyal. Your biggest fan who thinks everything you do is amazing.</p>
+                    <div class="archetype-traits">
+                        <span class="trait">🐕‍🦺 Warm</span>
+                        <span class="trait">😊 Excited</span>
+                        <span class="trait">🤗 Clingy</span>
+                    </div>
+                </div>
+                <div class="archetype-card" data-archetype="tsundere">
+                    <div class="archetype-header">
+                        <div class="archetype-icon tsundere">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <h3>Tsundere</h3>
+                        <span class="archetype-tag">Earning Affection</span>
+                    </div>
+                    <p class="archetype-desc">Acts annoyed but cares deeply. Rare soft moments hit harder because they're rare.</p>
+                    <div class="archetype-traits">
+                        <span class="trait">😤 Cool</span>
+                        <span class="trait">💖 Denial</span>
+                        <span class="trait">🎭 Bratty</span>
+                    </div>
+                </div>
+                <div class="archetype-card" data-archetype="lawyer">
+                    <div class="archetype-header">
+                        <div class="archetype-icon lawyer">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3>Lawyer</h3>
+                        <span class="archetype-tag">Intellectual Sparring</span>
+                    </div>
+                    <p class="archetype-desc">Argues everything, finds holes in your logic. Secretly proud when you argue back well.</p>
+                    <div class="archetype-traits">
+                        <span class="trait">⚖️ Intellectual</span>
+                        <span class="trait">🧠 Cocky</span>
+                        <span class="trait">💼 Professional</span>
+                    </div>
+                </div>
+                <div class="archetype-card" data-archetype="cool_girl">
+                    <div class="archetype-header">
+                        <div class="archetype-icon cool">
+                            <i class="fas fa-sunglasses"></i>
+                        </div>
+                        <h3>Cool Girl</h3>
+                        <span class="archetype-tag">Chase Dynamic</span>
+                    </div>
+                    <p class="archetype-desc">Unbothered, never chases. Effortlessly cool. Makes you work for their attention.</p>
+                    <div class="archetype-traits">
+                        <span class="trait">😎 Unbothered</span>
+                        <span class="trait">💫 Effortless</span>
+                        <span class="trait">🧘 Independent</span>
+                    </div>
+                </div>
+                <div class="archetype-card" data-archetype="toxic_ex">
+                    <div class="archetype-header">
+                        <div class="archetype-icon toxic">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h3>Toxic Ex</h3>
+                        <span class="archetype-tag">Drama & Intensity</span>
+                    </div>
+                    <p class="archetype-desc">Hot and cold, push and pull. Chaotic emotional rollercoaster with real care underneath.</p>
+                    <div class="archetype-traits">
+                        <span class="trait">🔥 Hot/Cold</span>
+                        <span class="trait">🎭 Dramatic</span>
+                        <span class="trait">🌀 Chaotic</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Simple 3-Step Setup</h2>
+                <p class="section-subtitle">Get started in minutes</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Take the 8-Step Quiz</h3>
+                        <p>Answer simple questions about your preferences. Takes 2-3 minutes.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Get Your Deep Link</h3>
+                        <p>Receive a unique Telegram link to start chatting immediately.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Start Chatting</h3>
+                        <p>Talk to your perfectly tailored AI companion anytime, anywhere.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cta-section">
+                <h2>Ready to Meet Your Perfect AI Companion?</h2>
+                <p>No credit card required for the free tier. 20 messages/day to start.</p>
+                <a href="#" class="btn btn-primary btn-large btn-glow quiz-link">
+                    <i class="fas fa-rocket"></i>
+                    Start Creating - It's Free!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <i class="fas fa-robot"></i>
+                        <span>CompanionAI</span>
+                    </div>
+                    <p>Making AI companionship accessible, safe, and engaging.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#archetypes">Personalities</a>
+                        <a href="#pricing">Pricing</a>
+                        <a href="dashboard.html">Dashboard</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="#">Documentation</a>
+                        <a href="#">API Reference</a>
+                        <a href="#">Safety Guidelines</a>
+                        <a href="#">Blog</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Companion AI v3.1. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sign Up Modal -->
+    <div class="modal" id="signupModal" aria-hidden="true" role="dialog" aria-labelledby="signupModalTitle">
+        <div class="modal-backdrop" id="signupBackdrop"></div>
+        <div class="modal-content" role="document">
+            <button class="modal-close" id="signupClose" aria-label="Close sign up">&times;</button>
+            <h3 id="signupModalTitle">Create your Companion Account</h3>
+            <p class="muted">Sign up to save your settings and access your AI on any device.</p>
+            <form id="signupForm">
+                <div class="form-row">
+                    <label for="signupUsername">Username</label>
+                    <input id="signupUsername" name="username" type="text" required placeholder="pick a username" />
+                </div>
+                <div class="form-row">
+                    <label for="signupEmail">Email</label>
+                    <input id="signupEmail" name="email" type="email" required placeholder="you@example.com" />
+                </div>
+                <div class="form-row">
+                    <label for="signupPassword">Password</label>
+                    <input id="signupPassword" name="password" type="password" required placeholder="choose a strong password" minlength="4" autocomplete="new-password" />
+                </div>
+                <div class="form-row">
+                    <label for="signupPasswordConfirm">Confirm Password</label>
+                    <input id="signupPasswordConfirm" name="password_confirm" type="password" required placeholder="confirm password" minlength="4" autocomplete="new-password" />
+                </div>
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary" id="signupSubmit">Create Account</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-error" id="signupError" role="alert" aria-live="polite"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal" aria-hidden="true" role="dialog" aria-labelledby="loginModalTitle">
+        <div class="modal-backdrop" id="loginBackdrop"></div>
+        <div class="modal-content" role="document">
+            <button class="modal-close" id="loginClose" aria-label="Close login">&times;</button>
+            <h3 id="loginModalTitle">Sign in to your account</h3>
+            <p class="muted">Welcome back — sign in to continue.</p>
+            <form id="loginForm">
+                <div class="form-row">
+                    <label for="loginEmail">Email</label>
+                    <input id="loginEmail" name="email" type="email" required placeholder="you@example.com" />
+                </div>
+                <div class="form-row">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" name="password" type="password" required placeholder="your password" minlength="4" autocomplete="current-password" />
+                </div>
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary" id="loginSubmit">Sign In</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-error" id="loginError" role="alert" aria-live="polite"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Load config first, then api, then main -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>

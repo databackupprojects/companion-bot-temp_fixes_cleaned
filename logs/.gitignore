@@ -1,0 +1,5 @@
+# Ignore all log files but keep directory structure
+*.log
+
+# But keep README
+!README.md

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Companion Bot</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>CompanionAI</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h3 id="dashboardUserName">Loading...</h3>
+                    <p class="user-tier">
+                        <span class="tier-badge free" id="userTier">Free</span>
+                    </p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item" id="homeNavItem" title="Back to Home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#chat" data-section="chat" class="nav-item active">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat</span>
+                </a>
+                <a href="#my-bots" data-section="my-bots" class="nav-item">
+                    <i class="fas fa-robot"></i>
+                    <span>My Bots</span>
+                </a>
+                <a href="#settings" data-section="settings" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#boundaries" data-section="boundaries" class="nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Boundaries</span>
+                </a>
+                <a href="#analytics" data-section="analytics" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#memory" data-section="memory" class="nav-item">
+                    <i class="fas fa-brain"></i>
+                    <span>Memory</span>
+                </a>
+                <a href="admin.html" class="nav-item admin-only" id="adminPanelLink" style="display: none;" title="Admin Panel">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Admin Panel</span>
+                </a>
+                <a href="#upgrade" data-section="upgrade" class="nav-item premium">
+                    <i class="fas fa-crown"></i>
+                    <span>Upgrade</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="daily-limits">
+                    <h4>Daily Limits</h4>
+                    <div class="limit-progress">
+                        <div class="limit-label">
+                            <span>Messages</span>
+                            <span id="messagesCount">0/20</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="messagesProgress"></div>
+                        </div>
+                    </div>
+                    <div class="limit-progress">
+                        <div class="limit-label">
+                            <span>Proactive</span>
+                            <span id="proactiveCount">0/1</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="proactiveProgress"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline btn-small btn-block" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Sidebar Backdrop (for mobile) -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 id="pageTitle">Chat</h1>
+                        <p class="page-subtitle" id="pageSubtitle">Talk to your AI companion</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-actions">
+                        <button class="btn btn-outline" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="btn btn-primary" id="newChatBtn">
+                            <i class="fas fa-plus"></i>
+                            New Chat
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="content-sections">
+                <!-- Chat Section -->
+                <section id="chat" class="content-section active">
+                    <div class="chat-container">
+                        <!-- Bot Selector -->
+                        <div class="chat-bot-selector">
+                            <label for="chatBotSelect">Select Companion:</label>
+                            <select id="chatBotSelect" class="bot-selector">
+                                <option value="">Loading bots...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="chat-header">
+                            <div class="chat-companion">
+                                <div class="companion-avatar" id="companionAvatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="companion-info">
+                                    <h3 id="companionName">Loading...</h3>
+                                    <p class="companion-archetype" id="companionArchetype"></p>
+                                    <p class="companion-status" id="companionStatus">
+                                        <i class="fas fa-circle online"></i> Online
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="chat-actions">
+                                <button class="btn-icon" title="Settings" id="chatSettingsBtn">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="btn-icon" title="Clear Chat" id="clearChatBtn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn-icon" title="Help" id="helpBtn">
+                                    <i class="fas fa-question-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will be loaded here -->
+                            <div class="empty-chat">
+                                <i class="fas fa-comment-slash"></i>
+                                <h3>Start a conversation</h3>
+                                <p>Send a message to begin chatting with your AI companion</p>
+                                <button class="btn btn-primary" id="sayHelloBtn">
+                                    <i class="fas fa-comment"></i>
+                                    Say Hello!
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <div class="input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="messageInput" 
+                                    placeholder="Type your message here..."
+                                    maxlength="4000"
+                                    onkeypress="handleMessageKeypress(event)"
+                                >
+                                <div class="input-actions">
+                                    <button class="btn-icon" title="Send" id="sendBtn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-limits">
+                                <span class="char-count" id="charCount">0/4000</span>
+                                <span class="daily-count">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span id="dailyCount">0 messages today</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- My Bots Section -->
+                <section id="my-bots" class="content-section">
+                    <div class="bots-container">
+                        <div class="section-header">
+                            <h2><i class="fas fa-robot"></i> My AI Companions</h2>
+                            <button class="btn btn-primary" id="createBotBtn">
+                                <i class="fas fa-plus"></i>
+                                Create New Companion
+                            </button>
+                            <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i> Companions are created through the onboarding quiz
+                            </p>
+                        </div>
+                        
+                        <div class="bots-grid" id="botsGrid">
+                            <!-- Bot cards will be dynamically loaded here -->
+                            <div class="loading-state">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading your bots...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <div class="settings-container">
+                        <div class="section-header">
+                            <h2>Companion Settings</h2>
+                            <div class="bot-selector-wrapper">
+                                <label for="settingsBotSelect">Select Bot:</label>
+                                <select id="settingsBotSelect" class="bot-selector">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3><i class="fas fa-user-circle"></i> Basic Information</h3>
+                            <div class="settings-grid">
+                                <div class="setting-item">
+                                    <label>Your AI's Name</label>
+                                    <input type="text" id="settingBotName" placeholder="Enter name...">
+                                </div>
+                                <div class="setting-item">
+                                    <label>Gender</label>
+                                    <select id="settingGender">
+                                        <option value="female">Female (Her)</option>
+                                        <option value="male">Male (Him)</option>
+                                        <option value="nonbinary">Non-binary (Them)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3><i class="fas fa-brain"></i> Personality Core</h3>
+                            <div class="settings-grid">
+                                <div class="setting-item">
+                                    <label>Archetype <span class="readonly-badge">Cannot be changed</span></label>
+                                    <select id="settingArchetype" disabled>
+                                        <option value="golden_retriever">Golden Retriever</option>
+                                        <option value="tsundere">Tsundere</option>
+                                        <option value="lawyer">Lawyer</option>
+                                        <option value="cool_girl">Cool Girl</option>
+                                        <option value="toxic_ex">Toxic Ex</option>
+                                    </select>
+                                </div>
+                                <div class="setting-item">
+                                    <label>Attachment Style</label>
+                                    <select id="settingAttachment">
+                                        <option value="secure">Secure</option>
+                                        <option value="anxious">Anxious</option>
+                                        <option value="avoidant">Avoidant</option>
+                                    </select>
+                                </div>
+                                <div class="setting-item">
+                                    <label>Flirtiness</label>
+                                    <select id="settingFlirtiness">
+                                        <option value="none">None</option>
+                                        <option value="subtle">Subtle</option>
+                                        <option value="flirty">Flirty</option>
+                                    </select>
+                                </div>
+                                <div class="setting-item">
+                                    <label>Spice Level</label>
+                                    <select id="settingToxicity">
+                                        <option value="healthy">Healthy</option>
+                                        <option value="mild">Mild</option>
+                                        <option value="toxic_light">Spicy</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3><i class="fas fa-sliders-h"></i> Advanced Settings</h3>
+                            <div class="advanced-settings" id="advancedSettings">
+                                <!-- Advanced settings will be loaded here -->
+                            </div>
+                            <button class="btn btn-outline" id="resetAdvancedSettingsBtn">
+                                <i class="fas fa-undo"></i>
+                                Reset to Defaults
+                            </button>
+                        </div>
+                        
+                        <div class="settings-actions">
+                            <button class="btn btn-outline" id="reloadSettingsBtn">
+                                <i class="fas fa-sync-alt"></i>
+                                Reload
+                            </button>
+                            <button class="btn btn-primary" id="saveSettingsBtn">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Boundaries Section -->
+                <section id="boundaries" class="content-section">
+                    <div class="boundaries-container">
+                        <h2>Your Boundaries</h2>
+                        <p class="section-description">
+                            Set boundaries that your AI companion will never cross. 
+                            These take priority over all personality settings.
+                        </p>
+                        
+                        <div class="boundaries-list" id="boundariesList">
+                            <!-- Boundaries will be loaded here -->
+                        </div>
+                        
+                        <div class="add-boundary">
+                            <h3>Add New Boundary</h3>
+                            <div class="boundary-form">
+                                <div class="form-group">
+                                    <label>Boundary Type</label>
+                                    <select id="boundaryType">
+                                        <option value="topic">Topic Boundary</option>
+                                        <option value="timing">Timing Boundary</option>
+                                        <option value="behavior">Behavior Boundary</option>
+                                        <option value="frequency">Frequency Boundary</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Boundary Value</label>
+                                    <input type="text" id="boundaryValue" placeholder="e.g., 'work', 'no morning messages'">
+                                    <p class="form-hint" id="boundaryHint">
+                                        For topic: "work", "politics", etc. For timing: "no morning messages", "no late night texts"
+                                    </p>
+                                </div>
+                                <button class="btn btn-primary" id="addBoundaryBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Add Boundary
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="boundary-info">
+                            <div class="info-card">
+                                <i class="fas fa-info-circle"></i>
+                                <h4>About Boundaries</h4>
+                                <p><strong>Topic Boundaries:</strong> Your AI will never mention these topics.</p>
+                                <p><strong>Timing Boundaries:</strong> Controls when your AI can message you.</p>
+                                <p><strong>24-Hour Hard Stop:</strong> Saying "leave me alone" stops proactive messages for 24 hours.</p>
+                                <p><strong>Space Retraction:</strong> Message "I'm back" to retract space boundaries.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics" class="content-section">
+                    <div class="analytics-container">
+                        <h2>Your Chat Analytics</h2>
+                        
+                        <div class="analytics-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon total">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="totalMessages">0</h3>
+                                    <p>Total Messages</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon active">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="activeDays">0</h3>
+                                    <p>Active Days</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon average">
+                                    <i class="fas fa-ruler-horizontal"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="avgLength">0</h3>
+                                    <p>Avg. Message Length</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon mood">
+                                    <i class="fas fa-smile"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="commonMood">Neutral</h3>
+                                    <p>Common Mood</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-charts">
+                            <div class="chart-container">
+                                <h3>Messages per Day (Last 7 Days)</h3>
+                                <div class="chart" id="messagesChart">
+                                    <!-- Chart will be drawn here -->
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <h3>Mood Distribution</h3>
+                                <div class="chart" id="moodChart">
+                                    <!-- Chart will be drawn here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-details">
+                            <h3>Recent Activity</h3>
+                            <div class="activity-list" id="activityList">
+                                <!-- Activity will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Memory Section -->
+                <section id="memory" class="content-section">
+                    <div class="memory-container">
+                        <h2>Your AI's Memory</h2>
+                        <p class="section-description">
+                            These are facts your AI has learned about you through your conversations.
+                            Updated weekly via memory summarization.
+                        </p>
+                        
+                        <div class="memory-stats">
+                            <div class="memory-stat">
+                                <span class="stat-number" id="memoryCount">0</span>
+                                <span class="stat-label">Total Memories</span>
+                            </div>
+                            <div class="memory-stat">
+                                <span class="stat-number" id="memoryCategories">0</span>
+                                <span class="stat-label">Categories</span>
+                            </div>
+                            <div class="memory-stat">
+                                <span class="stat-number" id="memoryImportance">0.0</span>
+                                <span class="stat-label">Avg. Importance</span>
+                            </div>
+                        </div>
+                        
+                        <div class="memory-categories">
+                            <h3>Memories by Category</h3>
+                            <div class="category-tabs" id="categoryTabs">
+                                <!-- Category tabs will be generated here -->
+                            </div>
+                            <div class="memories-list" id="memoriesList">
+                                <!-- Memories will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="memory-actions">
+                            <button class="btn btn-outline" id="refreshMemoryBtn">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Memory
+                            </button>
+                            <button class="btn btn-danger" id="clearMemoryBtn">
+                                <i class="fas fa-trash"></i>
+                                Clear All Memory
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upgrade Section -->
+                <section id="upgrade" class="content-section">
+                    <div class="upgrade-container">
+                        <h2>Upgrade Your Experience</h2>
+                        <p class="section-description">
+                            Get more messages, proactive chats, and premium features.
+                        </p>
+                        
+                        <div class="pricing-cards">
+                            <div class="pricing-card free">
+                                <div class="pricing-header">
+                                    <h3>Free</h3>
+                                    <div class="price">$0<span>/month</span></div>
+                                </div>
+                                <div class="pricing-features">
+                                    <p><i class="fas fa-check"></i> 20 messages per day</p>
+                                    <p><i class="fas fa-check"></i> 1 proactive message per day</p>
+                                    <p><i class="fas fa-check"></i> 5 personality archetypes</p>
+                                    <p><i class="fas fa-check"></i> Basic memory system</p>
+                                    <p><i class="fas fa-check"></i> Safety features</p>
+                                    <p><i class="fas fa-times"></i> <del>Advanced analytics</del></p>
+                                    <p><i class="fas fa-times"></i> <del>Priority support</del></p>
+                                </div>
+                                <button class="btn btn-outline btn-block" disabled>
+                                    Current Plan
+                                </button>
+                            </div>
+                            
+                            <div class="pricing-card plus">
+                                <div class="pricing-badge">Most Popular</div>
+                                <div class="pricing-header">
+                                    <h3>Plus</h3>
+                                    <div class="price">$9.99<span>/month</span></div>
+                                </div>
+                                <div class="pricing-features">
+                                    <p><i class="fas fa-check"></i> 200 messages per day</p>
+                                    <p><i class="fas fa-check"></i> 3 proactive messages per day</p>
+                                    <p><i class="fas fa-check"></i> 5 personality archetypes</p>
+                                    <p><i class="fas fa-check"></i> Enhanced memory system</p>
+                                    <p><i class="fas fa-check"></i> Basic analytics</p>
+                                    <p><i class="fas fa-check"></i> Priority support</p>
+                                    <p><i class="fas fa-times"></i> <del>Advanced personality controls</del></p>
+                                </div>
+                                <button class="btn btn-primary btn-block" data-upgrade="plus">
+                                    Upgrade to Plus
+                                </button>
+                            </div>
+                            
+                            <div class="pricing-card premium">
+                                <div class="pricing-header">
+                                    <h3>Premium</h3>
+                                    <div class="price">$19.99<span>/month</span></div>
+                                </div>
+                                <div class="pricing-features">
+                                    <p><i class="fas fa-check"></i> 1000 messages per day</p>
+                                    <p><i class="fas fa-check"></i> 5 proactive messages per day</p>
+                                    <p><i class="fas fa-check"></i> All current & future archetypes</p>
+                                    <p><i class="fas fa-check"></i> Full memory system</p>
+                                    <p><i class="fas fa-check"></i> Advanced analytics</p>
+                                    <p><i class="fas fa-check"></i> Priority support</p>
+                                    <p><i class="fas fa-check"></i> Advanced personality controls</p>
+                                </div>
+                                <button class="btn btn-primary btn-block" data-upgrade="premium">
+                                    Go Premium
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="upgrade-info">
+                            <div class="info-card">
+                                <i class="fas fa-question-circle"></i>
+                                <h4>Frequently Asked Questions</h4>
+                                <div class="faq-item">
+                                    <h5>Can I switch plans anytime?</h5>
+                                    <p>Yes! You can upgrade or downgrade at any time. Changes take effect immediately.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h5>What payment methods do you accept?</h5>
+                                    <p>We accept all major credit cards, PayPal, and crypto payments.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h5>Is there a free trial for paid plans?</h5>
+                                    <p>Yes! All paid plans come with a 7-day free trial.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Support Modal -->
+    <div class="modal" id="supportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-life-ring"></i> Real Help & Support</h2>
+                <button class="modal-close" id="closeSupportModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="support-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p><strong>Stepping out of character completely.</strong></p>
+                    <p>If you're going through something difficult, I'm here to listen without any act.</p>
+                </div>
+                
+                <div class="crisis-resources">
+                    <h3>If you're in crisis:</h3>
+                    <ul>
+                        <li><strong>988 Suicide & Crisis Lifeline (US)</strong> - Call or text 988</li>
+                        <li><strong>Crisis Text Line</strong> - Text HOME to 741741</li>
+                        <li><strong>International Help</strong> - <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></li>
+                    </ul>
+                </div>
+                
+                <div class="support-message">
+                    <p>Want to talk for real? I'm listening. 💙</p>
+                    <p>You can also email us at: <strong>support@companionai.com</strong></p>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-outline" id="closeSupportModalBtn2">
+                        Close
+                    </button>
+                    <button class="btn btn-primary" id="sendSupportMessageBtn">
+                        <i class="fas fa-comment-medical"></i>
+                        Send Support Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Create Bot Modal -->
+    <div class="modal" id="createBotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-robot"></i> Create New AI Companion</h2>
+                <button class="modal-close" id="closeCreateBotBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createBotForm">
+                    <div class="form-group">
+                        <label for="newBotName">Bot Name *</label>
+                        <input type="text" id="newBotName" placeholder="e.g., Luna" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newBotGender">Gender *</label>
+                        <select id="newBotGender" required>
+                            <option value="female">Female (Her)</option>
+                            <option value="male">Male (Him)</option>
+                            <option value="nonbinary">Non-binary (Them)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newBotArchetype">Archetype * <small>(Cannot be changed later)</small></label>
+                        <select id="newBotArchetype" required>
+                            <option value="golden_retriever">Golden Retriever - Sweet & Supportive</option>
+                            <option value="tsundere">Tsundere - Tough Outside, Soft Inside</option>
+                            <option value="lawyer">Lawyer - Logical & Direct</option>
+                            <option value="cool_girl">Cool Girl - Chill & Easy-going</option>
+                            <option value="toxic_ex">Toxic Ex - Intense & Dramatic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newBotAttachment">Attachment Style *</label>
+                        <select id="newBotAttachment" required>
+                            <option value="secure">Secure</option>
+                            <option value="anxious">Anxious</option>
+                            <option value="avoidant">Avoidant</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newBotFlirtiness">Flirtiness *</label>
+                            <select id="newBotFlirtiness" required>
+                                <option value="none">None</option>
+                                <option value="subtle">Subtle</option>
+                                <option value="flirty">Flirty</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newBotToxicity">Spice Level *</label>
+                            <select id="newBotToxicity" required>
+                                <option value="healthy">Healthy</option>
+                                <option value="mild">Mild</option>
+                                <option value="toxic_light">Spicy</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" id="cancelCreateBotBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Create Bot
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bot Details Modal -->
+    <div class="modal" id="botDetailsModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-robot"></i> <span id="botDetailsName">Bot Details</span></h2>
+                <button class="modal-close" id="closeBotDetailsBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="bot-details-content">
+                    <div class="bot-details-left">
+                        <div class="bot-info-section">
+                            <h3>Bot Information</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Name:</label>
+                                    <span id="detailsBotName">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Gender:</label>
+                                    <span id="detailsBotGender">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Archetype:</label>
+                                    <span id="detailsBotArchetype">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Attachment:</label>
+                                    <span id="detailsBotAttachment">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Flirtiness:</label>
+                                    <span id="detailsBotFlirtiness">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Spice Level:</label>
+                                    <span id="detailsBotToxicity">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bot-actions-section">
+                            <button class="btn btn-primary btn-block" id="editBotSettingsBtn">
+                                <i class="fas fa-cog"></i>
+                                Edit Settings
+                            </button>
+                            <button class="btn btn-outline btn-block" id="chatWithBotBtn">
+                                <i class="fas fa-comments"></i>
+                                Chat with this Bot
+                            </button>
+                            <button class="btn btn-danger btn-block" id="deleteBotBtn" style="background-color: #dc3545; border-color: #dc3545;">
+                                <i class="fas fa-trash"></i>
+                                Delete Bot
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bot-details-right">
+                        <div class="telegram-section">
+                            <h3>Telegram Connection</h3>
+                            <p class="telegram-help">Scan this QR code with Telegram or click the link below to chat with your bot on Telegram.</p>
+                            
+                            <div class="qr-code-container">
+                                <img id="botQRCode" src="" alt="QR Code" style="max-width: 250px; display: none;">
+                                <div class="qr-loading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Generating QR code...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="telegram-link-container">
+                                <label>Telegram Link:</label>
+                                <div class="link-copy-group">
+                                    <input type="text" id="botTelegramLink" readonly>
+                                    <button class="btn btn-outline btn-small" id="copyLinkBtn">
+                                        <i class="fas fa-copy"></i>
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <a id="openTelegramBtn" href="#" target="_blank" class="btn btn-primary btn-block">
+                                <i class="fab fa-telegram"></i>
+                                Open in Telegram
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Admin Access</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .success {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .label {
+            font-weight: bold;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Admin Access Debug Tool</h1>
+        
+        <div class="label">Authentication Status:</div>
+        <div id="authStatus" class="info-box">Checking...</div>
+        
+        <div class="label">Token Info:</div>
+        <div id="tokenInfo" class="info-box">Checking...</div>
+        
+        <div class="label">User Data:</div>
+        <div id="userData" class="info-box">Not loaded</div>
+        
+        <div class="label">Admin Check:</div>
+        <div id="adminCheck" class="info-box">Not checked</div>
+        
+        <div>
+            <button onclick="checkAuth()">🔄 Refresh Check</button>
+            <button onclick="clearTokens()">🗑️ Clear All Tokens</button>
+            <button onclick="window.location.href='login.html'">🔐 Go to Login</button>
+            <button onclick="window.location.href='admin.html'">👑 Try Admin Panel</button>
+        </div>
+    </div>
+
+    <script src="scripts/config.js"></script>
+    <script>
+        const baseURL = config?.api?.baseURL || 'http://localhost:8010';
+        
+        async function checkAuth() {
+            // Check tokens
+            const accessToken = localStorage.getItem('access_token');
+            const legacyToken = localStorage.getItem('aiCompanionToken');
+            const token = accessToken || legacyToken;
+            
+            const tokenDiv = document.getElementById('tokenInfo');
+            if (!token) {
+                tokenDiv.className = 'info-box error';
+                tokenDiv.innerHTML = '❌ NO TOKEN FOUND<br><br>localStorage keys checked:<br>- access_token: ' + (accessToken ? 'exists' : 'missing') + '<br>- aiCompanionToken: ' + (legacyToken ? 'exists' : 'missing');
+                document.getElementById('authStatus').className = 'info-box error';
+                document.getElementById('authStatus').textContent = '❌ Not authenticated - Please login';
+                return;
+            }
+            
+            tokenDiv.className = 'info-box success';
+            tokenDiv.innerHTML = '✅ Token found<br><br>Key: ' + (accessToken ? 'access_token' : 'aiCompanionToken') + '<br>Token (first 20 chars): ' + token.substring(0, 20) + '...';
+            
+            // Try to get user data
+            try {
+                document.getElementById('userData').className = 'info-box';
+                document.getElementById('userData').textContent = '⏳ Loading user data...';
+                
+                const response = await fetch(`${baseURL}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const userDiv = document.getElementById('userData');
+                
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    userDiv.className = 'info-box error';
+                    userDiv.innerHTML = `❌ API Error (${response.status})<br><br>${JSON.stringify(error, null, 2)}`;
+                    document.getElementById('authStatus').className = 'info-box error';
+                    document.getElementById('authStatus').textContent = '❌ Authentication failed';
+                    return;
+                }
+                
+                const userData = await response.json();
+                
+                userDiv.className = 'info-box success';
+                userDiv.innerHTML = '✅ User data loaded<br><br>' + JSON.stringify(userData, null, 2);
+                
+                document.getElementById('authStatus').className = 'info-box success';
+                document.getElementById('authStatus').textContent = '✅ Authenticated as: ' + userData.username;
+                
+                // Check admin status
+                const adminDiv = document.getElementById('adminCheck');
+                if (userData.role === 'admin') {
+                    adminDiv.className = 'info-box success';
+                    adminDiv.innerHTML = '✅ ADMIN ACCESS CONFIRMED<br><br>Role: ' + userData.role + '<br><br>You should see the Admin Panel link in the dashboard sidebar.<br><br>If not visible, the dashboard.js might not be checking correctly.';
+                } else {
+                    adminDiv.className = 'info-box error';
+                    adminDiv.innerHTML = '❌ NOT AN ADMIN<br><br>Your role: ' + (userData.role || 'user') + '<br><br>You need admin role to access the admin panel.<br><br>Contact system administrator to upgrade your account.';
+                }
+                
+            } catch (error) {
+                const userDiv = document.getElementById('userData');
+                userDiv.className = 'info-box error';
+                userDiv.innerHTML = '❌ Error loading user data<br><br>' + error.message;
+                document.getElementById('authStatus').className = 'info-box error';
+                document.getElementById('authStatus').textContent = '❌ Error: ' + error.message;
+            }
+        }
+        
+        function clearTokens() {
+            if (confirm('This will clear all authentication tokens. You will need to login again. Continue?')) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('aiCompanionToken');
+                localStorage.removeItem('aiCompanionData');
+                localStorage.removeItem('dashboardSection');
+                alert('All tokens cleared! Redirecting to login...');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Auto-run on load
+        checkAuth();
+    </script>
+</body>
+</html>

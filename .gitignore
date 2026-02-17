@@ -1,0 +1,20 @@
+## _pyc file
+*.pyc
+__pycache__/
+
+## Virtual environment
+venv/
+env/
+# All .env files present anywhere in the repository
+**/.env
+.venv/
+
+## IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# All log files present anywhere in the repository
+**/*.log

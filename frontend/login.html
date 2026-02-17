@@ -1,0 +1,318 @@
+<!-- ===== FILE: login.html ===== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Companion Bot</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-light) 100%);
+        }
+        
+        .login-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .login-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+        
+        .login-logo i {
+            color: var(--primary-color);
+        }
+        
+        .login-form {
+            margin-bottom: var(--space-xl);
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: var(--space-xl);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .form-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>CompanionAI</span>
+                </div>
+                <span class="version">v3.1</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-home"></i>
+                    Back Home
+                </a>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-robot"></i>
+                    <span>CompanionAI</span>
+                </div>
+                <h1>Welcome Back</h1>
+                <p class="text-muted">Sign in to create and chat with your AI companion</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In
+                </button>
+            </div>
+            
+            <div class="form-footer">
+                <p>Don't have an account? <a href="#" id="openSignupLink">Sign Up Here</a></p>
+                <p><a href="index.html">← Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div class="modal" id="signupModal" aria-hidden="true" role="dialog" aria-labelledby="signupModalTitle">
+        <div class="modal-backdrop" id="signupBackdrop"></div>
+        <div class="modal-content" role="document">
+            <button class="modal-close" id="signupClose" aria-label="Close sign up">&times;</button>
+            <h3 id="signupModalTitle">Create your Companion Account</h3>
+            <p class="muted">Sign up to save your settings and access your AI on any device.</p>
+            <form id="signupForm">
+                <div class="form-row">
+                    <label for="signupUsername">Username</label>
+                    <input id="signupUsername" name="username" type="text" required placeholder="pick a username" />
+                </div>
+                <div class="form-row">
+                    <label for="signupEmail">Email</label>
+                    <input id="signupEmail" name="email" type="email" required placeholder="you@example.com" />
+                </div>
+                <div class="form-row">
+                    <label for="signupPassword">Password</label>
+                    <input id="signupPassword" name="password" type="password" required placeholder="choose a strong password" minlength="4" autocomplete="new-password" />
+                </div>
+                <div class="form-row">
+                    <label for="signupPasswordConfirm">Confirm Password</label>
+                    <input id="signupPasswordConfirm" name="password_confirm" type="password" required placeholder="confirm password" minlength="4" autocomplete="new-password" />
+                </div>
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary" id="signupSubmit">Create Account</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-error" id="signupError" role="alert" aria-live="polite"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // api will be loaded from scripts/api.js at the bottom
+        
+        // Handle signup modal close button - redirect to home
+        document.addEventListener('DOMContentLoaded', function() {
+            const signupClose = document.getElementById('signupClose');
+            const signupBackdrop = document.getElementById('signupBackdrop');
+            const signupModal = document.getElementById('signupModal');
+            
+            if (signupClose) {
+                signupClose.addEventListener('click', function() {
+                    window.location.href = 'index.html';
+                });
+            }
+            
+            if (signupBackdrop) {
+                signupBackdrop.addEventListener('click', function() {
+                    window.location.href = 'index.html';
+                });
+            }
+        });
+        
+        // Login handler - simplified to use global showToast
+        window.login = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = event?.currentTarget || document.querySelector('.login-form .btn.btn-primary');
+            
+            // Validation
+            if (!email || !password) {
+                showToast('Please fill in all fields', 'warning', 6000);
+                return;
+            }
+            
+            // Disable button and show loading state
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            
+            try {
+                // Call backend API
+                const response = await api.auth.login(email, password);
+                
+                // Store token and user data
+                if (response.access_token) {
+                    api.setToken(response.access_token);
+                    localStorage.setItem('access_token', response.access_token);
+                    
+                    // Store user info
+                    localStorage.setItem('user_id', response.user_id || response.id);
+                    localStorage.setItem('user_role', response.role);
+                    localStorage.setItem('username', response.username);
+                    localStorage.setItem('email', response.email);
+                    
+                    // Show success and redirect
+                    showToast(`Welcome back, ${response.username}!`, 'success', 4000);
+                    setTimeout(() => {
+                        // Admin UI is not implemented as a separate page in this frontend.
+                        // Keep navigation working by sending all roles to the main dashboard.
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                }
+            } catch (error) {
+                // Show user-friendly error message
+                let errorMsg = 'Login failed. Please check your email and password.';
+                if (error.status === 401) {
+                    errorMsg = 'Invalid email or password';
+                } else if (error.status === 404) {
+                    errorMsg = 'Account not found. Please create a new AI companion.';
+                } else if (error.status === 422) {
+                    errorMsg = 'Invalid email format';
+                }
+                
+                showToast(errorMsg, 'error', 8000);
+                
+                // Re-enable button
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            }
+        };
+        
+        // Allow login with Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const email = document.getElementById('email');
+                const password = document.getElementById('password');
+                if (email.value && password.value) {
+                    document.getElementById('loginBtn').click();
+                }
+            }
+        });
+        
+        // Event listeners for login and signup buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    window.login(e);
+                });
+            }
+            
+            const openSignupLink = document.getElementById('openSignupLink');
+            if (openSignupLink) {
+                openSignupLink.addEventListener('click', function(e) {
+                    window.openSignup(e);
+                });
+            }
+        });
+        
+    </script>
+    
+    <!-- Load config first, then api, then main login script -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>

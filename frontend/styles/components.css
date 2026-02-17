@@ -1,0 +1,9 @@
+/* components.css - placeholder to satisfy legacy includes
+   Add small component-level rules here as needed.
+*/
+
+/* Ensure anchor elements are interactive and not covered */
+a {
+  -webkit-tap-highlight-color: rgba(0,0,0,0.05);
+  cursor: pointer;
+}

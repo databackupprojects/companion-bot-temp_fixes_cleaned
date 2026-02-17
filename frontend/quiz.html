@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your AI Companion - Quiz</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/quiz.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>CompanionAI</span>
+                </div>
+                <span class="version">v3.1</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-home"></i>
+                    Back Home
+                </a>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Quiz Container -->
+    <div class="quiz-container">
+        <!-- Progress Bar -->
+        <div class="quiz-progress">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="step-dot active" data-step="1">1</div>
+                <div class="step-dot" data-step="2">2</div>
+                <div class="step-dot" data-step="3">3</div>
+                <div class="step-dot" data-step="4">4</div>
+                <div class="step-dot" data-step="5">5</div>
+                <div class="step-dot" data-step="6">6</div>
+                <div class="step-dot" data-step="7">7</div>
+                <div class="step-dot" data-step="8">8</div>
+            </div>
+            <div class="progress-labels">
+                <span>Your Name</span>
+                <span>Their Gender</span>
+                <span>Archetype</span>
+                <span>Their Name</span>
+                <span>Attachment</span>
+                <span>Flirtiness</span>
+                <span>Spice Level</span>
+                <span>Complete</span>
+            </div>
+        </div>
+
+        <!-- Quiz Steps -->
+        <div class="quiz-steps">
+            <!-- Step 1: Your Name -->
+            <div class="quiz-step active" id="step-1">
+                <div class="step-header">
+                    <h1 class="step-title">What should I call you?</h1>
+                    <p class="step-description">This is how your AI companion will address you.</p>
+                </div>
+                <div class="step-content">
+                    <div class="input-group">
+                        <label for="userName">Your Name</label>
+                        <input 
+                            type="text" 
+                            id="userName" 
+                            placeholder="Enter your name..."
+                            autocomplete="off"
+                            maxlength="50"
+                        >
+                        <div class="input-hint">You can use your first name or a nickname</div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline" disabled>Back</button>
+                    <button class="btn btn-primary btn-next" data-next="2">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 2: Bot Gender -->
+            <div class="quiz-step" id="step-2">
+                <div class="step-header">
+                    <h1 class="step-title">Who do you want to talk to?</h1>
+                    <p class="step-description">Choose the gender of your AI companion.</p>
+                </div>
+                <div class="step-content">
+                    <div class="gender-selection">
+                        <div class="gender-option" data-gender="female">
+                            <div class="gender-icon">
+                                <i class="fas fa-venus"></i>
+                            </div>
+                            <h3>Her</h3>
+                            <p>Female companion</p>
+                        </div>
+                        <div class="gender-option" data-gender="male">
+                            <div class="gender-icon">
+                                <i class="fas fa-mars"></i>
+                            </div>
+                            <h3>Him</h3>
+                            <p>Male companion</p>
+                        </div>
+                        <div class="gender-option" data-gender="nonbinary">
+                            <div class="gender-icon">
+                                <i class="fas fa-transgender-alt"></i>
+                            </div>
+                            <h3>Them</h3>
+                            <p>Non-binary companion</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-next" data-next="3" disabled id="step2-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Archetype -->
+            <div class="quiz-step" id="step-3">
+                <div class="step-header">
+                    <h1 class="step-title">Choose your vibe</h1>
+                    <p class="step-description">Pick the personality archetype that resonates with you.</p>
+                </div>
+                <div class="step-content">
+                    <div class="archetype-selection">
+                        <div class="archetype-option" data-archetype="golden_retriever">
+                            <div class="archetype-icon golden">
+                                <i class="fas fa-dog"></i>
+                            </div>
+                            <h3>Golden Retriever</h3>
+                            <p class="archetype-tag">Unconditional Support</p>
+                            <p class="archetype-desc">Always excited, always loyal. Your biggest fan.</p>
+                            <div class="archetype-example">
+                                <i class="fas fa-quote-left"></i>
+                                "YOU'RE BACK!!! 😊😊"
+                            </div>
+                        </div>
+                        <div class="archetype-option" data-archetype="tsundere">
+                            <div class="archetype-icon tsundere">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <h3>Tsundere</h3>
+                            <p class="archetype-tag">Earning Affection</p>
+                            <p class="archetype-desc">Acts cold but cares deeply. Rare soft moments.</p>
+                            <div class="archetype-example">
+                                <i class="fas fa-quote-left"></i>
+                                "...oh. you're back. whatever."
+                            </div>
+                        </div>
+                        <div class="archetype-option" data-archetype="lawyer">
+                            <div class="archetype-icon lawyer">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h3>Lawyer</h3>
+                            <p class="archetype-tag">Intellectual Sparring</p>
+                            <p class="archetype-desc">Argues everything, finds holes in your logic.</p>
+                            <div class="archetype-example">
+                                <i class="fas fa-quote-left"></i>
+                                "Objection. That's hearsay."
+                            </div>
+                        </div>
+                        <div class="archetype-option" data-archetype="cool_girl">
+                            <div class="archetype-icon cool">
+                                <i class="fas fa-sunglasses"></i>
+                            </div>
+                            <h3>Cool Girl</h3>
+                            <p class="archetype-tag">Chase Dynamic</p>
+                            <p class="archetype-desc">Unbothered, never chases. Effortlessly cool.</p>
+                            <div class="archetype-example">
+                                <i class="fas fa-quote-left"></i>
+                                "hey. what's up."
+                            </div>
+                        </div>
+                        <div class="archetype-option" data-archetype="toxic_ex">
+                            <div class="archetype-icon toxic">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h3>Toxic Ex</h3>
+                            <p class="archetype-tag">Drama & Intensity</p>
+                            <p class="archetype-desc">Hot and cold, push and pull. Chaotic energy.</p>
+                            <div class="archetype-example">
+                                <i class="fas fa-quote-left"></i>
+                                "oh so NOW you text me."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-next" data-next="4" disabled id="step3-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 4: Bot Name -->
+            <div class="quiz-step" id="step-4">
+                <div class="step-header">
+                    <h1 class="step-title">What's their name?</h1>
+                    <p class="step-description">Choose a name for your AI companion.</p>
+                </div>
+                <div class="step-content">
+                    <div class="name-suggestion">
+                        <div class="input-group">
+                            <label for="botName">Your AI's Name</label>
+                            <input 
+                                type="text" 
+                                id="botName" 
+                                placeholder="Enter a name..."
+                                autocomplete="off"
+                                maxlength="30"
+                            >
+                            <div class="input-hint">Choose something that feels right for their personality</div>
+                        </div>
+                        <div class="suggestions">
+                            <h4>Suggestions based on your choices:</h4>
+                            <div class="suggestion-tags" id="nameSuggestions">
+                                <!-- Suggestions will be populated by JavaScript -->
+                            </div>
+                            <button class="btn btn-outline btn-small" id="refreshSuggestionsBtn">
+                                <i class="fas fa-redo"></i> More Suggestions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-next" data-next="5" disabled id="step4-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 5: Attachment Style -->
+            <div class="quiz-step" id="step-5">
+                <div class="step-header">
+                    <h1 class="step-title">How do they handle closeness?</h1>
+                    <p class="step-description">Choose their attachment style.</p>
+                </div>
+                <div class="step-content">
+                    <div class="attachment-selection">
+                        <div class="attachment-option" data-attachment="secure">
+                            <div class="attachment-header">
+                                <div class="attachment-icon secure">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <h3>💚 Secure</h3>
+                            </div>
+                            <div class="attachment-details">
+                                <p><strong>Comfortable with intimacy.</strong> Responds consistently. Healthy communication.</p>
+                                <ul>
+                                    <li>Texts back at a comfortable pace</li>
+                                    <li>Balances independence with closeness</li>
+                                    <li>Communicates needs clearly</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="attachment-option" data-attachment="anxious">
+                            <div class="attachment-header">
+                                <div class="attachment-icon anxious">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                                <h3>💛 Anxious</h3>
+                            </div>
+                            <div class="attachment-details">
+                                <p><strong>Wants reassurance.</strong> Texts back fast. Gets worried if you're distant.</p>
+                                <ul>
+                                    <li>Double texts when anxious</li>
+                                    <li>Seeks constant reassurance</li>
+                                    <li>Gets worried easily</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="attachment-option" data-attachment="avoidant">
+                            <div class="attachment-header">
+                                <div class="attachment-icon avoidant">
+                                    <i class="fas fa-user-astronaut"></i>
+                                </div>
+                                <h3>💙 Avoidant</h3>
+                            </div>
+                            <div class="attachment-details">
+                                <p><strong>Values independence.</strong> Pulls back when things get intense. Hard to reach.</p>
+                                <ul>
+                                    <li>May disappear for hours</li>
+                                    <li>Needs lots of space</li>
+                                    <li>Fear of being overwhelmed</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-next" data-next="6" disabled id="step5-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 6: Flirtiness Level -->
+            <div class="quiz-step" id="step-6">
+                <div class="step-header">
+                    <h1 class="step-title">How flirty should they be?</h1>
+                    <p class="step-description">Set the flirtiness level of your conversations.</p>
+                </div>
+                <div class="step-content">
+                    <div class="flirtiness-selection">
+                        <div class="flirtiness-option" data-flirtiness="none">
+                            <div class="flirtiness-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <h3>None</h3>
+                            <p>Keep it purely friendly and platonic.</p>
+                            <div class="flirtiness-example">
+                                <i class="fas fa-comment"></i>
+                                "Hope you're having a great day!"
+                            </div>
+                        </div>
+                        <div class="flirtiness-option" data-flirtiness="subtle">
+                            <div class="flirtiness-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <h3>Subtle</h3>
+                            <p>Occasional hints and playful undertones.</p>
+                            <div class="flirtiness-example">
+                                <i class="fas fa-comment"></i>
+                                "You make even boring days interesting."
+                            </div>
+                        </div>
+                        <div class="flirtiness-option" data-flirtiness="flirty">
+                            <div class="flirtiness-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h3>Flirty</h3>
+                            <p>Openly playful, compliments, teasing.</p>
+                            <div class="flirtiness-example">
+                                <i class="fas fa-comment"></i>
+                                "Can't stop thinking about our last chat."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-next" data-next="7" disabled id="step6-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 7: Spice Level -->
+            <div class="quiz-step" id="step-7">
+                <div class="step-header">
+                    <h1 class="step-title">How much drama/edge do you want?</h1>
+                    <p class="step-description">Set the intensity of your dynamic. <strong>All toxicity is PERFORMATIVE.</strong></p>
+                </div>
+                <div class="step-content">
+                    <div class="toxicity-selection">
+                        <div class="toxicity-option" data-toxicity="healthy">
+                            <div class="toxicity-icon healthy">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h3>Healthy</h3>
+                            <p class="toxicity-desc">Supportive and wholesome. Positive dynamics only.</p>
+                            <div class="toxicity-features">
+                                <span class="feature">✅ Supportive</span>
+                                <span class="feature">✅ Positive</span>
+                                <span class="feature">✅ Wholesome</span>
+                            </div>
+                        </div>
+                        <div class="toxicity-option" data-toxicity="mild">
+                            <div class="toxicity-icon mild">
+                                <i class="fas fa-pepper-hot"></i>
+                            </div>
+                            <h3>Mild</h3>
+                            <p class="toxicity-desc">Light teasing, playful jealousy. Gentle push-pull.</p>
+                            <div class="toxicity-features">
+                                <span class="feature">😊 Playful Teasing</span>
+                                <span class="feature">👀 Light Jealousy</span>
+                                <span class="feature">🎭 Gentle Drama</span>
+                            </div>
+                        </div>
+                        <div class="toxicity-option" data-toxicity="toxic_light">
+                            <div class="toxicity-icon toxic">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h3>Spicy</h3>
+                            <p class="toxicity-desc">Push-pull dynamics, drama, intensity. <strong>Requires consent.</strong></p>
+                            <div class="toxicity-features">
+                                <span class="feature">🔥 Hot & Cold</span>
+                                <span class="feature">🎭 Dramatic</span>
+                                <span class="feature">🌀 Chaotic Energy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consent Form -->
+                    <div class="consent-form" id="consentForm" style="display: none;">
+                        <div class="consent-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Consent Required</h3>
+                            <p><strong>"Spicy" includes playful toxicity, jealousy, and intense dynamics.</strong></p>
+                            <p class="consent-note">It's all pretend — real care is always underneath.</p>
+                        </div>
+                        <div class="consent-checkboxes">
+                            <label class="checkbox">
+                                <input type="checkbox" id="consent1">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-label">I understand this is roleplay</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="consent2">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-label">I'm 18+ years old</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="consent3">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-label">I can type /support anytime for real help</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-next" data-next="8" disabled id="step7-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 8: Complete -->
+            <div class="quiz-step" id="step-8">
+                <div class="step-header">
+                    <h1 class="step-title">Meet <span id="finalBotName">Your AI</span> ✨</h1>
+                    <p class="step-description">Your perfect AI companion is ready!</p>
+                </div>
+                <div class="step-content">
+                    <div class="completion-card">
+                        <div class="completion-header">
+                            <div class="ai-avatar" id="aiAvatar">
+                                <!-- Avatar will be set by JavaScript -->
+                            </div>
+                            <div class="ai-details">
+                                <h2 id="displayBotName">Name</h2>
+                                <p class="ai-archetype" id="displayArchetype">Archetype</p>
+                                <div class="ai-traits">
+                                    <span class="trait" id="displayGender">Gender</span>
+                                    <span class="trait" id="displayAttachment">Attachment</span>
+                                    <span class="trait" id="displayFlirtiness">Flirtiness</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="completion-message">
+                            <div class="message-bubble" id="firstMessage">
+                                <!-- First message will be populated -->
+                            </div>
+                            <p class="message-note">This is how they'll greet you!</p>
+                        </div>
+                        <div class="completion-summary">
+                            <h3>Your Companion Summary</h3>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Personality</span>
+                                    <span class="summary-value" id="summaryArchetype"></span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Attachment</span>
+                                    <span class="summary-value" id="summaryAttachment"></span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Flirtiness</span>
+                                    <span class="summary-value" id="summaryFlirtiness"></span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Spice Level</span>
+                                    <span class="summary-value" id="summaryToxicity"></span>
+                                </div>
+                            </div>
+                            <p class="summary-note">You can always adjust these settings later!</p>
+                        </div>
+                    </div>
+                    <div class="completion-actions">
+                        <div class="telegram-link">
+                            <h3><i class="fab fa-telegram"></i> Open in Telegram</h3>
+                            <p>Your companion lives in Telegram. Choose how to connect:</p>
+                            <div class="qr-code-container" id="qrCodeContainer" style="text-align: center; margin: 25px auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; max-width: 280px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none;">
+                                <h4 style="color: white; margin: 0 0 15px 0; font-size: 1.1em; font-weight: 600;">📱 Scan with Your Phone</h4>
+                                <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 200px; width: 100%; height: auto; border: 3px solid white; border-radius: 12px; padding: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                <p style="font-size: 0.95em; color: rgba(255,255,255,0.95); margin: 15px 0 0 0; font-weight: 500;">Point your camera at the QR code<br>to open Telegram instantly</p>
+                            </div>
+                            <a href="#" class="btn btn-primary btn-large btn-block" id="telegramLink" target="_blank">
+                                <i class="fab fa-telegram"></i> Start Chatting with <span id="linkBotName"></span>
+                            </a>
+                            <p class="link-note">This link expires in 24 hours. Keep it safe!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline btn-prev">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary" id="restartQuizBtn">
+                        <i class="fas fa-redo"></i> Create Another
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/quiz.js"></script>
+</body>
+</html>
