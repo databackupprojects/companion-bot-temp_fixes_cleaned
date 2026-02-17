@@ -87,9 +87,9 @@ class ServiceManager:
             # Check if it's a network/DNS error
             error_msg = str(e).lower()
             if 'network' in error_msg or 'dns' in error_msg or 'name or service not known' in error_msg or 'connecterror' in error_msg:
-                logger.warning(f"⚠️ Telegram bot disabled due to network/DNS error: {e}")
-                logger.warning("⚠️ API server will continue running. Telegram functionality will be unavailable.")
-                logger.info("💡 To fix: Check your internet connection or DNS settings")
+                logger.warning(f"Telegram bot disabled due to network/DNS error: {e}")
+                logger.warning("API server will continue running. Telegram functionality will be unavailable.")
+                logger.info("To fix: Check your internet connection or DNS settings")
             else:
                 logger.error(f"Failed to run Telegram bot: {e}")
                 import traceback
@@ -218,10 +218,11 @@ async def main():
     # Create service manager
     manager = ServiceManager()
     
-    # Set up signal handlers
-    loop = asyncio.get_event_loop()
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, lambda: asyncio.create_task(manager.stop_services()))
+    # Set up signal handlers (not supported on Windows)
+    if sys.platform != "win32":
+        loop = asyncio.get_event_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, lambda: asyncio.create_task(manager.stop_services()))
     
     try:
         # Start services

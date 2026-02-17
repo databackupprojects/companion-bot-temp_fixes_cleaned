@@ -24,7 +24,7 @@ class ProactiveMeetingChecker:
         
     async def check_and_send_reminders(self):
         """Main job function - check meetings and send reminders."""
-        logger.info("🔔 [ProactiveMeetingChecker] Starting meeting check cycle")
+        logger.info("[ProactiveMeetingChecker] Starting meeting check cycle")
         
         async with AsyncSessionLocal() as db:
             try:
@@ -39,24 +39,24 @@ class ProactiveMeetingChecker:
                 logger.debug("[ProactiveMeetingChecker] Checking for preparation reminders...")
                 prep_count = await handler.check_and_send_preparation_reminders()
                 if prep_count > 0:
-                    logger.info(f"✅ [ProactiveMeetingChecker] Sent {prep_count} preparation reminder(s)")
+                    logger.info(f"[ProactiveMeetingChecker] Sent {prep_count} preparation reminder(s)")
                 
                 # Check for completion messages
                 logger.debug("[ProactiveMeetingChecker] Checking for completion messages...")
                 comp_count = await handler.check_and_send_completion_messages()
                 if comp_count > 0:
-                    logger.info(f"✅ [ProactiveMeetingChecker] Sent {comp_count} completion message(s)")
+                    logger.info(f"[ProactiveMeetingChecker] Sent {comp_count} completion message(s)")
                 
                 # Check for time-based greetings
                 logger.debug("[ProactiveMeetingChecker] Checking for time-based greetings...")
                 greeting_count = await handler.check_and_send_time_greetings()
                 if greeting_count > 0:
-                    logger.info(f"✅ [ProactiveMeetingChecker] Sent {greeting_count} time-based greeting(s)")
+                    logger.info(f"[ProactiveMeetingChecker] Sent {greeting_count} time-based greeting(s)")
                 
-                logger.info(f"🔔 [ProactiveMeetingChecker] Check complete - Prep: {prep_count}, Completion: {comp_count}, Greetings: {greeting_count}")
+                logger.info(f"[ProactiveMeetingChecker] Check complete - Prep: {prep_count}, Completion: {comp_count}, Greetings: {greeting_count}")
                 
             except Exception as e:
-                logger.error(f"❌ [ProactiveMeetingChecker] Error during meeting check: {e}", exc_info=True)
+                logger.error(f"[ProactiveMeetingChecker] Error during meeting check: {e}", exc_info=True)
                 await db.rollback()
 
 

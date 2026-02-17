@@ -208,8 +208,8 @@ class TelegramBot:
             # Check if it's a network/DNS error - don't re-raise these
             if 'network' in error_msg or 'dns' in error_msg or 'name or service not known' in error_msg or 'connecterror' in error_msg:
                 logger.error(f"Error in Telegram bot [{self.archetype}] polling: {e}")
-                logger.warning(f"⚠️ Telegram bot [{self.archetype}] cannot connect due to network/DNS error")
-                logger.info("💡 This is usually caused by internet connectivity or DNS resolution issues")
+                logger.warning(f"Telegram bot [{self.archetype}] cannot connect due to network/DNS error")
+                logger.info("This is usually caused by internet connectivity or DNS resolution issues")
                 # Don't re-raise network errors - let the application continue
                 return
             else:
