@@ -33,6 +33,39 @@ class Analytics:
             logger.warning(f"Failed to track {event}: {e}")
             await self.db.rollback()
     
+    async def bot_started(self, user_id: str, returning: bool = False, archetype: str = "golden_retriever"):
+        """Track bot started event."""
+        await self.track("bot_started", user_id, {
+            "returning": returning,
+            "archetype": archetype
+        })
+
+    async def message_sent(self, user_id: str, message_length: int = 0):
+        """Track message sent event."""
+        await self.track("message_sent", user_id, {
+            "message_length": message_length
+        })
+
+    async def message_received(self, user_id: str, response_length: int = 0, latency_ms: float = 0):
+        """Track message received/response event."""
+        await self.track("message_received", user_id, {
+            "response_length": response_length,
+            "latency_ms": latency_ms
+        })
+
+    async def support_triggered(self, user_id: str, reason: str = ""):
+        """Track support command triggered."""
+        await self.track("support_triggered", user_id, {
+            "reason": reason
+        })
+
+    async def boundary_set(self, user_id: str, boundary_type: str = "", value: str = ""):
+        """Track boundary set event."""
+        await self.track("boundary_set", user_id, {
+            "boundary_type": boundary_type,
+            "value": value
+        })
+
     async def get_dashboard_stats(self, days: int = 7) -> Dict[str, Any]:
         """Get basic dashboard statistics."""
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
