@@ -13,7 +13,7 @@ async def get_or_create_user(
 ) -> Dict[str, Any]:
     """Fetch a user by telegram_id or create a new one with optional bot defaults."""
     from sqlalchemy import select
-    from models.sql_models import User, BotSettings
+    from models.sql_models import User, BotSettings, GreetingPreference
 
     try:
         try:
@@ -53,7 +53,7 @@ async def get_or_create_user(
         await db.commit()
         await db.refresh(new_user)
 
-        bot_kwargs = {"user_id": new_user.id, "archetype": archetype_value}
+        bot_kwargs = {"user_id": new_user.id, "archetype": archetype_value, "is_primary": True}
         if bot_defaults:
             bot_kwargs.update({k: v for k, v in bot_defaults.items() if v is not None})
 
@@ -64,6 +64,19 @@ async def get_or_create_user(
         except Exception as bot_err:
             await db.rollback()
             logger.error("%sFailed to create bot settings for user %s: %s", log_context, new_user.id, bot_err, exc_info=True)
+
+        # Create default greeting preference for proactive messages
+        try:
+            greeting_pref = GreetingPreference(
+                user_id=new_user.id,
+                prefer_proactive=True,
+                max_proactive_per_day=3,
+            )
+            db.add(greeting_pref)
+            await db.commit()
+        except Exception as pref_err:
+            await db.rollback()
+            logger.error("%sFailed to create greeting preference for user %s: %s", log_context, new_user.id, pref_err, exc_info=True)
 
         logger.info("%sCreated new user %s with archetype %s", log_context, new_user.id, archetype_value)
 

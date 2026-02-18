@@ -66,6 +66,13 @@ class Analytics:
             "value": value
         })
 
+    async def proactive_sent(self, user_id: str, archetype: str = "", message_type: str = ""):
+        """Track proactive message sent event."""
+        await self.track("proactive_sent", user_id, {
+            "archetype": archetype,
+            "message_type": message_type
+        })
+
     async def get_dashboard_stats(self, days: int = 7) -> Dict[str, Any]:
         """Get basic dashboard statistics."""
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)

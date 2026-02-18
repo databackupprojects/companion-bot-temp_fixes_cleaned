@@ -4,6 +4,7 @@ Service to extract meeting information from user messages using NLU.
 Identifies mentions of meetings, events, and schedules in conversations.
 """
 
+import json
 import re
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Tuple
@@ -282,3 +283,113 @@ class MeetingExtractor:
         
         # Cap at 1.0
         return min(confidence, 1.0)
+
+
+class LLMMeetingExtractor:
+    """
+    Extracts meetings/events from messages using GPT-4.
+    Falls back to regex-based MeetingExtractor on any failure.
+    """
+
+    def __init__(self, llm_client):
+        self.llm_client = llm_client
+        self._regex_fallback = MeetingExtractor()
+
+    async def extract_meetings(
+        self, message: str, reference_time: Optional[datetime] = None
+    ) -> List[MeetingInfo]:
+        """
+        Extract meetings using GPT-4, falling back to regex on failure.
+        """
+        if not message or not message.strip():
+            return []
+
+        reference_time = reference_time or datetime.utcnow()
+
+        try:
+            return await self._extract_via_llm(message, reference_time)
+        except Exception as e:
+            logger.warning(
+                "LLM meeting extraction failed, falling back to regex: %s", e
+            )
+            return self._regex_fallback.extract_meetings(message, reference_time)
+
+    async def _extract_via_llm(
+        self, message: str, reference_time: datetime
+    ) -> List[MeetingInfo]:
+        """Call GPT-4 to extract events as structured JSON."""
+        ref_str = reference_time.strftime("%Y-%m-%d %H:%M (%A)")
+
+        prompt = (
+            "Extract any scheduled events, meetings, or appointments from the "
+            "user message below. Return ONLY valid JSON in this exact format:\n"
+            '{"events": [{"name": "...", "date": "YYYY-MM-DD", "time": "HH:MM", '
+            '"end_time": "HH:MM", "description": "..."}]}\n'
+            "Rules:\n"
+            f"- Current date/time for the user is: {ref_str}\n"
+            "- Resolve relative references (tomorrow, Friday, next week, etc.) "
+            "to absolute dates.\n"
+            '- If no events are found, return {"events": []}\n'
+            "- end_time and description are optional (use null if unknown).\n"
+            "- time should be in 24-hour format.\n\n"
+            f"User message: {message}"
+        )
+
+        response = await self.llm_client.client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=300,
+        )
+
+        raw = response.choices[0].message.content.strip()
+
+        # Strip markdown code fences if present
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = re.sub(r"\s*```$", "", raw)
+
+        data = json.loads(raw)
+        events = data.get("events", [])
+
+        if not events:
+            return []
+
+        meetings: List[MeetingInfo] = []
+        for evt in events:
+            name = evt.get("name", "Event")
+            date_str = evt.get("date")
+            time_str = evt.get("time")
+            end_time_str = evt.get("end_time")
+            description = evt.get("description")
+
+            start_time = None
+            end_time = None
+
+            if date_str and time_str:
+                try:
+                    start_time = datetime.strptime(
+                        f"{date_str} {time_str}", "%Y-%m-%d %H:%M"
+                    )
+                except ValueError:
+                    pass
+
+            if date_str and end_time_str:
+                try:
+                    end_time = datetime.strptime(
+                        f"{date_str} {end_time_str}", "%Y-%m-%d %H:%M"
+                    )
+                except ValueError:
+                    pass
+
+            meetings.append(
+                MeetingInfo(
+                    event_name=name,
+                    start_time=start_time,
+                    end_time=end_time,
+                    description=description or message[:200],
+                    confidence=0.9,
+                )
+            )
+
+        return meetings

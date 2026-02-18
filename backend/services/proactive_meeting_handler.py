@@ -473,16 +473,17 @@ class ProactiveMeetingHandler:
                 logger.debug(f"Already sent {greeting_type} greeting to user {user.id} today")
                 return False
             
-            # Get user's primary bot
+            # Get user's primary bot (fall back to first bot if none marked primary)
             result = await self.db.execute(
                 select(BotSettings)
-                .where(BotSettings.user_id == user.id, BotSettings.is_primary == True)
+                .where(BotSettings.user_id == user.id, BotSettings.is_active == True)
+                .order_by(BotSettings.is_primary.desc())
                 .limit(1)
             )
             bot_settings = result.scalar_one_or_none()
-            
+
             if not bot_settings:
-                logger.debug(f"No primary bot found for user {user.id}")
+                logger.debug(f"No bot found for user {user.id}")
                 return False
             
             # Generate greeting message
@@ -490,7 +491,11 @@ class ProactiveMeetingHandler:
             
             # Determine channel (prefer telegram if available, else web)
             channel = "telegram" if user.telegram_id else "web"
-            
+
+            # Actually send to Telegram if user has telegram_id
+            if user.telegram_id:
+                await self._send_to_telegram(user.telegram_id, message, bot_settings.archetype or 'golden_retriever')
+
             # Create proactive session with sent_at timestamp
             session = ProactiveSession(
                 user_id=user.id,
@@ -507,7 +512,7 @@ class ProactiveMeetingHandler:
             self.db.add(session)
             await self.db.commit()
             
-            logger.info(f"✅ Sent {greeting_type} greeting to user {user.id} via {channel}")
+            logger.info(f"Sent {greeting_type} greeting to user {user.id} via {channel}")
             
             return True
             
@@ -618,20 +623,22 @@ class ProactiveMeetingHandler:
         """Send a message to a Telegram user using the correct bot."""
         try:
             from telegram import Bot
+            from telegram.request import HTTPXRequest
             from constants import get_telegram_bot_token
-            
+
             # Get the bot token for this archetype
             token = get_telegram_bot_token(archetype)
             if not token:
-                logger.error(f"❌ No token found for archetype {archetype}")
+                logger.error(f"No token found for archetype {archetype}")
                 return False
-            
-            # Send the message
-            bot = Bot(token=token)
-            await bot.send_message(chat_id=telegram_id, text=message, parse_mode='Markdown')
-            logger.info(f"✅ Sent Telegram message to {telegram_id} via {archetype} bot")
+
+            # Send the message with extended timeout
+            request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0, write_timeout=20.0)
+            bot = Bot(token=token, request=request)
+            await bot.send_message(chat_id=telegram_id, text=message)
+            logger.info(f"Sent Telegram message to {telegram_id} via {archetype} bot")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error sending to Telegram {telegram_id}: {e}", exc_info=True)
+            logger.error(f"Error sending to Telegram {telegram_id}: {e}", exc_info=True)
             return False

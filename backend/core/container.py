@@ -14,6 +14,7 @@ from services.boundary_manager import BoundaryManager
 from services.context_builder import ContextBuilder
 from services.llm_client import OpenAILLMClient
 from services.message_analyzer import MessageAnalyzer
+from services.proactive_scheduler import ProactiveWorker
 from services.question_tracker import QuestionTracker
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ class JobManager:
         self.data_cleanup_job: Optional[DataCleanupJob] = None
         self.memory_summarizer: Optional[MemorySummarizer] = None
         self.proactive_checker: Optional[ProactiveMeetingChecker] = None
+        self.proactive_worker: Optional[ProactiveWorker] = None
 
     async def start(self) -> None:
         if self._running:
@@ -42,10 +44,20 @@ class JobManager:
             self.memory_summarizer = MemorySummarizer(AsyncSessionLocal(), self.llm_client)
             self.proactive_checker = ProactiveMeetingChecker()
 
+            worker_db = AsyncSessionLocal()
+            self.proactive_worker = ProactiveWorker(
+                db=worker_db,
+                context_builder_class=ContextBuilder,
+                llm_client=self.llm_client,
+                boundary_manager=BoundaryManager(worker_db),
+                analytics=Analytics(worker_db),
+            )
+
             self._tasks.append(asyncio.create_task(self.daily_reset_job.run()))
             self._tasks.append(asyncio.create_task(self.data_cleanup_job.run()))
             self._tasks.append(asyncio.create_task(self.memory_summarizer.run()))
             self._tasks.append(asyncio.create_task(self._run_proactive_checker_loop()))
+            self._tasks.append(asyncio.create_task(self.proactive_worker.run()))
 
             logger.info("Background jobs started")
         except Exception:
@@ -58,7 +70,7 @@ class JobManager:
             return
         self._running = False
 
-        for job in (self.daily_reset_job, self.data_cleanup_job, self.memory_summarizer):
+        for job in (self.daily_reset_job, self.data_cleanup_job, self.memory_summarizer, self.proactive_worker):
             try:
                 if job and hasattr(job, "stop"):
                     job.stop()
@@ -132,7 +144,7 @@ class ServiceContainer:
         analytics = self.build_analytics(db_session)
         boundary_manager = BoundaryManager(db_session)
         question_tracker = QuestionTracker(db_session)
-        message_analyzer = MessageAnalyzer(db_session)
+        message_analyzer = MessageAnalyzer(db_session, llm_client=self.llm_client)
         return MessageHandler(
             db=db_session,
             llm_client=self.llm_client,
