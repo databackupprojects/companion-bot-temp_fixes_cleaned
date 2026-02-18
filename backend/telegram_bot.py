@@ -70,6 +70,7 @@ class TelegramBot:
             self.application = (
                 ApplicationBuilder()
                 .token(self.token)
+                .job_queue(None)
                 .concurrent_updates(True)
                 .pool_timeout(30)
                 .connect_timeout(30)

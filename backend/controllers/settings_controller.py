@@ -86,18 +86,7 @@ async def update_advanced_settings(db: AsyncSession, user_id: str, advanced_sett
 
 
 def _serialize(settings: BotSettings) -> BotSettingsResponse:
-    return BotSettingsResponse(
-        bot_name=settings.bot_name,
-        bot_gender=settings.bot_gender,
-        archetype=settings.archetype,
-        attachment_style=settings.attachment_style,
-        flirtiness=settings.flirtiness,
-        toxicity=settings.toxicity,
-        advanced_settings=settings.advanced_settings or {},
-        tone_summary=settings.tone_summary,
-        created_at=settings.created_at,
-        updated_at=settings.updated_at,
-    )
+    return BotSettingsResponse.model_validate(settings)
 
 
 def _to_uuid(raw: str) -> uuid.UUID:
