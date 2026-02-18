@@ -175,49 +175,46 @@ class TelegramBot:
                 pass
     
     async def start_polling(self):
-        """Start polling for updates."""
-        if not self.application:
-            await self.initialize()
-        
-        logger.info(f"Starting Telegram bot [{self.archetype}] polling...")
-        
-        try:
-            # Initialize the application
-            await self.application.initialize()
-            
-            # Start polling with error handling
-            await self.application.start()
-            
-            # Get the updater and start polling
-            await self.application.updater.start_polling(
-                poll_interval=0.5,  # Half second interval
-                drop_pending_updates=True,
-                timeout=30,
-                allowed_updates=Update.ALL_TYPES
-            )
-            
-            logger.info(f"Telegram bot [{self.archetype}] is now polling for updates")
-            
-            # Keep the bot running
-            while True:
-                await asyncio.sleep(1)
-                
-        except asyncio.CancelledError:
-            logger.info(f"Telegram bot [{self.archetype}] polling cancelled")
-        except Exception as e:
-            error_msg = str(e).lower()
-            # Check if it's a network/DNS error - don't re-raise these
-            if 'network' in error_msg or 'dns' in error_msg or 'name or service not known' in error_msg or 'connecterror' in error_msg:
-                logger.error(f"Error in Telegram bot [{self.archetype}] polling: {e}")
-                logger.warning(f"Telegram bot [{self.archetype}] cannot connect due to network/DNS error")
-                logger.info("This is usually caused by internet connectivity or DNS resolution issues")
-                # Don't re-raise network errors - let the application continue
+        """Start polling for updates, retrying on network/timeout errors."""
+        retry_delay = 10  # seconds between retries
+        _NETWORK_KEYWORDS = ('network', 'dns', 'name or service not known', 'connecterror', 'timedout', 'timed out', 'connect timeout', 'all connection attempts failed')
+
+        while True:
+            if not self.application:
+                await self.initialize()
+
+            logger.info(f"Starting Telegram bot [{self.archetype}] polling...")
+
+            try:
+                await self.application.initialize()
+                await self.application.start()
+                await self.application.updater.start_polling(
+                    poll_interval=0.5,
+                    drop_pending_updates=True,
+                    timeout=30,
+                    allowed_updates=Update.ALL_TYPES
+                )
+
+                logger.info(f"Telegram bot [{self.archetype}] is now polling for updates")
+
+                while True:
+                    await asyncio.sleep(1)
+
+            except asyncio.CancelledError:
+                logger.info(f"Telegram bot [{self.archetype}] polling cancelled")
                 return
-            else:
-                logger.error(f"Error in Telegram bot [{self.archetype}] polling: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-                raise
+            except Exception as e:
+                error_msg = str(e).lower()
+                if any(kw in error_msg for kw in _NETWORK_KEYWORDS):
+                    logger.warning(f"Telegram bot [{self.archetype}] network error: {e}. Retrying in {retry_delay}s...")
+                    # Rebuild application so initialize() can be called fresh next attempt
+                    self.application = None
+                    await asyncio.sleep(retry_delay)
+                else:
+                    logger.error(f"Error in Telegram bot [{self.archetype}] polling: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                    raise
     
     async def stop(self):
         """Stop the bot gracefully."""

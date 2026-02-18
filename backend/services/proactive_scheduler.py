@@ -229,7 +229,7 @@ class ProactiveScheduler:
         )
         user = user_result.scalar_one_or_none()
         
-        user_tz = pytz.timezone(user.timezone or 'UTC')
+        user_tz = pytz.timezone(user or 'UTC')
         hour = datetime.now(user_tz).hour
         msg_type = self._get_message_type(hour)
         

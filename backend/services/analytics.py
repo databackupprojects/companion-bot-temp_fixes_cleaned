@@ -22,7 +22,7 @@ class Analytics:
         """Track an analytics event."""
         try:
             analytics_event = AnalyticsEvent(
-                user_id=UUID(user_id) if user_id else None,
+                user_id=UUID(str(user_id)) if user_id else None,
                 event_name=event,
                 properties=properties or {}
             )

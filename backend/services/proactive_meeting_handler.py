@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
 
-from models.sql_models import UserSchedule, User, ProactiveSession, GreetingPreference, BotSettings
+from models.sql_models import UserSchedule, User, ProactiveSession, GreetingPreference, BotSettings, Message
 import pytz
 
 logger = logging.getLogger(__name__)
@@ -23,9 +23,12 @@ class ProactiveMeetingHandler:
     
     # How many minutes before a meeting to send a preparation reminder
     PREPARATION_REMINDER_LEAD_TIME_MINUTES = 30
-    
+
     # How long after a meeting to wait before sending a followup
     FOLLOWUP_DELAY_MINUTES = 1
+
+    # Assumed meeting duration (minutes) when no end_time is provided
+    DEFAULT_MEETING_DURATION_MINUTES = 60
     
     def __init__(self, db: AsyncSession, llm_client=None):
         self.db = db
@@ -86,24 +89,36 @@ class ProactiveMeetingHandler:
         """
         messages_sent = 0
         try:
-            # Use UTC for all internal comparisons
             now = datetime.utcnow()
-            # Wait FOLLOWUP_DELAY_MINUTES after meeting ends before sending completion
             followup_window = now - timedelta(minutes=self.FOLLOWUP_DELAY_MINUTES)
-            
-            # Find meetings that have ended (with followup delay) but haven't had completion messages
+
+            # --- Case 1: meetings WITH an explicit end_time ---
             result = await self.db.execute(
                 select(UserSchedule).where(
                     and_(
                         UserSchedule.end_time.isnot(None),
-                        UserSchedule.end_time <= followup_window,  # Meeting ended at least FOLLOWUP_DELAY_MINUTES ago
+                        UserSchedule.end_time <= followup_window,
                         UserSchedule.event_completed_sent == False,
                         UserSchedule.is_completed == False
                     )
                 )
             )
             completed_meetings = result.scalars().all()
-            
+
+            # --- Case 2: meetings WITHOUT end_time — assume DEFAULT_MEETING_DURATION_MINUTES ---
+            assumed_end_cutoff = now - timedelta(minutes=self.DEFAULT_MEETING_DURATION_MINUTES + self.FOLLOWUP_DELAY_MINUTES)
+            result2 = await self.db.execute(
+                select(UserSchedule).where(
+                    and_(
+                        UserSchedule.end_time.is_(None),
+                        UserSchedule.start_time <= assumed_end_cutoff,
+                        UserSchedule.event_completed_sent == False,
+                        UserSchedule.is_completed == False
+                    )
+                )
+            )
+            completed_meetings = list(completed_meetings) + list(result2.scalars().all())
+
             for schedule in completed_meetings:
                 try:
                     sent = await self._send_completion_message(schedule)
@@ -117,7 +132,7 @@ class ProactiveMeetingHandler:
                     except:
                         pass
                     continue
-            
+
             return messages_sent
         except Exception as e:
             logger.error(f"Error in check_and_send_completion_messages: {e}", exc_info=True)
@@ -428,17 +443,32 @@ class ProactiveMeetingHandler:
     
     async def _should_send_time_greeting(self, user: User, pref: Optional[GreetingPreference]) -> bool:
         """Check if user should receive a time-based greeting right now."""
-        
+
         # Get user's current time
         user_tz = pytz.timezone(user.timezone or 'UTC')
         user_time = datetime.now(user_tz)
         current_hour = user_time.hour
-        
+
+        # Don't interrupt active conversations: skip if user sent a message in the last 30 minutes
+        active_window = datetime.utcnow() - timedelta(minutes=30)
+        recent_msg_result = await self.db.execute(
+            select(User.id)
+            .join(Message, Message.user_id == User.id)
+            .where(
+                User.id == user.id,
+                Message.role == 'user',
+                Message.created_at >= active_window
+            )
+            .limit(1)
+        )
+        if recent_msg_result.scalar_one_or_none():
+            return False
+
         # Check DND (Do Not Disturb) hours
         if pref:
             dnd_start = pref.dnd_start_hour or 22
             dnd_end = pref.dnd_end_hour or 6
-            
+
             # Handle DND wrapping around midnight
             if dnd_start > dnd_end:  # e.g., 22 to 6
                 if current_hour >= dnd_start or current_hour < dnd_end:
@@ -446,17 +476,17 @@ class ProactiveMeetingHandler:
             else:  # e.g., 1 to 5
                 if dnd_start <= current_hour < dnd_end:
                     return False
-            
+
             # Check max greetings per day
             max_per_day = pref.max_proactive_per_day or 3
             today_count = await self._get_todays_greeting_count(user.id)
             if today_count >= max_per_day:
                 return False
-        
+
         # Check if greeting already sent in this time period today
         greeting_type = self._get_greeting_type(current_hour)
         already_sent = await self._check_greeting_sent_today(user.id, greeting_type)
-        
+
         return not already_sent
     
     async def _send_time_based_greeting(self, user: User) -> bool:

@@ -291,9 +291,70 @@ class LLMMeetingExtractor:
     Falls back to regex-based MeetingExtractor on any failure.
     """
 
+    # Keywords that indicate the user explicitly named a future day
+    _EXPLICIT_DAY_MARKERS = (
+        'tomorrow', 'next week', 'next month', 'day after', 'following day',
+        'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+    )
+    # Regex for explicit calendar dates: "25th", "Feb 25", "25/2", "2026-02-25"
+    _EXPLICIT_DATE_RE = re.compile(
+        r'\b\d{1,2}(?:st|nd|rd|th)\b'          # ordinals: 25th
+        r'|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{1,2}'  # Feb 25
+        r'|\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)'     # 25 Feb
+        r'|\b\d{4}-\d{2}-\d{2}\b'              # ISO: 2026-02-25
+        r'|\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b',  # 25/2 or 25/2/2026
+        re.IGNORECASE,
+    )
+
     def __init__(self, llm_client):
         self.llm_client = llm_client
         self._regex_fallback = MeetingExtractor()
+
+    def _resolve_event_time(
+        self,
+        date_str: Optional[str],
+        time_str: str,
+        reference_time: datetime,
+        message: str,
+    ) -> datetime:
+        """
+        Robustly determine the correct datetime for an extracted event.
+
+        Strategy:
+        - If the message explicitly names a specific date or a relative day
+          (tomorrow, next Monday, etc.) → trust LLM's date entirely.
+        - Otherwise → ignore LLM's date and resolve the time to its NEAREST
+          FUTURE occurrence from reference_time.  This correctly handles:
+            * "9 PM" said at 3 PM  → tonight
+            * "11:59 PM" said at 11:26 PM → tonight
+            * "12:15 AM" said at 11:32 PM → tomorrow (past midnight)
+            * "2 PM" said at 4 PM  → tomorrow (already passed today)
+        """
+        message_lower = message.lower()
+
+        has_explicit_day = any(kw in message_lower for kw in self._EXPLICIT_DAY_MARKERS)
+        has_explicit_date = bool(self._EXPLICIT_DATE_RE.search(message))
+
+        if has_explicit_day or has_explicit_date:
+            # User was specific — trust the LLM's full date
+            if date_str:
+                return datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+
+        # No explicit date — resolve to nearest future occurrence of this time.
+        # Parse just the time component (use any date as placeholder).
+        parsed = datetime.strptime(f"2000-01-01 {time_str}", "%Y-%m-%d %H:%M")
+        candidate = reference_time.replace(
+            hour=parsed.hour,
+            minute=parsed.minute,
+            second=0,
+            microsecond=0,
+        )
+
+        if candidate <= reference_time:
+            # Time has already passed today (or is exactly now) → use tomorrow
+            candidate += timedelta(days=1)
+
+        return candidate
 
     async def extract_meetings(
         self, message: str, reference_time: Optional[datetime] = None
@@ -327,6 +388,9 @@ class LLMMeetingExtractor:
             '"end_time": "HH:MM", "description": "..."}]}\n'
             "Rules:\n"
             f"- Current date/time for the user is: {ref_str}\n"
+            "- If a time is mentioned without a date and that time is LATER TODAY "
+            "(i.e. the time is still in the future compared to the current time above), "
+            "use TODAY's date. Do NOT assume tomorrow unless the time has already passed today.\n"
             "- Resolve relative references (tomorrow, Friday, next week, etc.) "
             "to absolute dates.\n"
             '- If no events are found, return {"events": []}\n'
@@ -366,19 +430,24 @@ class LLMMeetingExtractor:
             start_time = None
             end_time = None
 
-            if date_str and time_str:
+            if time_str:
                 try:
-                    start_time = datetime.strptime(
-                        f"{date_str} {time_str}", "%Y-%m-%d %H:%M"
+                    start_time = self._resolve_event_time(
+                        date_str, time_str, reference_time, message
                     )
                 except ValueError:
                     pass
 
-            if date_str and end_time_str:
+            if end_time_str and start_time:
                 try:
+                    # end_time always on same date as start_time
                     end_time = datetime.strptime(
-                        f"{date_str} {end_time_str}", "%Y-%m-%d %H:%M"
+                        f"{start_time.strftime('%Y-%m-%d')} {end_time_str}",
+                        "%Y-%m-%d %H:%M"
                     )
+                    # If end_time is before start_time it crosses midnight — add a day
+                    if end_time <= start_time:
+                        end_time += timedelta(days=1)
                 except ValueError:
                     pass
 
