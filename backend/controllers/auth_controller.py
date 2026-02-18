@@ -128,7 +128,7 @@ async def register_user(db: AsyncSession, user_data: UserCreate) -> Dict[str, An
         password_hash=password_hash,
         telegram_id=user_data.telegram_id,
         tier=user_data.tier or "free",
-        timezone=user_data.timezone or "UTC",
+        timezone=user_data.timezone or "Asia/Karachi",
         role="user",
     )
 
@@ -172,7 +172,7 @@ async def register_admin_user(db: AsyncSession, user_data: UserCreate, current_a
         password_hash=password_hash,
         telegram_id=user_data.telegram_id,
         tier="premium",
-        timezone=user_data.timezone or "UTC",
+        timezone=user_data.timezone or "Asia/Karachi",
         role="admin",
         is_admin=True,
         is_active=True,

@@ -24,9 +24,9 @@ class ChatLogger:
         if self.enabled:
             # Create logs directory if it doesn't exist
             Path(self.logs_dir).mkdir(parents=True, exist_ok=True)
-            logger.info(f"✅ Chat logging enabled. Logs directory: {self.logs_dir}")
+            logger.info(f"Chat logging enabled. Logs directory: {self.logs_dir}")
         else:
-            logger.info("ℹ️  Chat logging is disabled")
+            logger.info("Chat logging is disabled")
     
     def log_conversation(
         self,
@@ -112,7 +112,7 @@ class ChatLogger:
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error logging conversation: {e}", exc_info=True)
+            logger.error(f"Error logging conversation: {e}", exc_info=True)
             return False
     
     def log_proactive_message(
@@ -192,7 +192,7 @@ class ChatLogger:
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error logging proactive message: {e}", exc_info=True)
+            logger.error(f"Error logging proactive message: {e}", exc_info=True)
             return False
     
     def get_conversation_history(
@@ -239,7 +239,7 @@ class ChatLogger:
             return conversations[-limit:] if conversations else []
             
         except Exception as e:
-            logger.error(f"❌ Error retrieving conversation history: {e}", exc_info=True)
+            logger.error(f"Error retrieving conversation history: {e}", exc_info=True)
             return []
     
     def get_user_stats(self, user_id: str, bot_id: Optional[str] = None) -> dict:
@@ -296,7 +296,7 @@ class ChatLogger:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ Error getting user stats: {e}", exc_info=True)
+            logger.error(f"Error getting user stats: {e}", exc_info=True)
             return {"enabled": True, "error": str(e)}
     
     def _count_conversations_in_dir(self, directory: Path) -> int:

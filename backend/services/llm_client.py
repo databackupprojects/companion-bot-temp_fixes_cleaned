@@ -47,14 +47,14 @@ class OpenAILLMClient:
         self.assistant_id = os.getenv("OPENAI_ASSISTANT_ID", "")
         
         if self.llm_mode == "assistant" and not self.assistant_id:
-            logger.warning("⚠️  LLM_MODE set to 'assistant' but no OPENAI_ASSISTANT_ID provided. Falling back to completion mode.")
+            logger.warning("LLM_MODE set to 'assistant' but no OPENAI_ASSISTANT_ID provided. Falling back to completion mode.")
             self.llm_mode = "completion"
-        
-        logger.info(f"✅ OpenAI LLM Client initialized with model: {self.model}")
-        logger.info(f"📊 Config: temp={self.temperature}, tokens={self.max_tokens}")
-        logger.info(f"🔧 Mode: {self.llm_mode.upper()}")
+
+        logger.info(f"OpenAI LLM Client initialized with model: {self.model}")
+        logger.info(f"Config: temp={self.temperature}, tokens={self.max_tokens}")
+        logger.info(f"Mode: {self.llm_mode.upper()}")
         if self.llm_mode == "assistant":
-            logger.info(f"🤖 Assistant ID: {self.assistant_id}")
+            logger.info(f"Assistant ID: {self.assistant_id}")
     
     async def generate(self, context: Dict[str, Any]) -> str:
         """

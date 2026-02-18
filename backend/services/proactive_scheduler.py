@@ -229,7 +229,7 @@ class ProactiveScheduler:
         )
         user = user_result.scalar_one_or_none()
         
-        user_tz = pytz.timezone(user.timezone or 'UTC')
+        user_tz = pytz.timezone(user or 'UTC')
         hour = datetime.now(user_tz).hour
         msg_type = self._get_message_type(hour)
         
@@ -379,6 +379,10 @@ class ProactiveScheduler:
             
             await self.db.commit()
             
+            # Send to Telegram if user has telegram_id
+            if user.telegram_id:
+                await self._send_to_telegram(user.telegram_id, message, archetype)
+
             # Log to chat log file
             chat_logger.log_proactive_message(
                 user_id=str(user_id),
@@ -387,21 +391,43 @@ class ProactiveScheduler:
                 bot_message=message,
                 source="telegram"
             )
-            
+
             # Track analytics
             if self.analytics:
                 await self.analytics.proactive_sent(
-                    user_id, 
+                    user_id,
                     archetype,
                     message_type
                 )
-            
+
             logger.info(f"Proactive sent to {user_id}: {message[:50]}...")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to send proactive: {e}")
             await self.db.rollback()
+            return False
+
+    async def _send_to_telegram(self, telegram_id: int, message: str, archetype: str = 'golden_retriever') -> bool:
+        """Send a message to a Telegram user using the correct bot."""
+        try:
+            from telegram import Bot
+            from telegram.request import HTTPXRequest
+            from constants import get_telegram_bot_token
+
+            token = get_telegram_bot_token(archetype)
+            if not token:
+                logger.error(f"No token found for archetype {archetype}")
+                return False
+
+            request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0, write_timeout=20.0)
+            bot = Bot(token=token, request=request)
+            await bot.send_message(chat_id=telegram_id, text=message)
+            logger.info(f"Sent Telegram proactive to {telegram_id} via {archetype} bot")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error sending proactive to Telegram {telegram_id}: {e}")
             return False
 
 

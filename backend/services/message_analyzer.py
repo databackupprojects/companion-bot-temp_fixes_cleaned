@@ -12,7 +12,7 @@ import uuid
 import pytz
 
 from models.sql_models import UserSchedule, User, Message, BotSettings
-from services.meeting_extractor import MeetingExtractor, MeetingInfo
+from services.meeting_extractor import MeetingExtractor, LLMMeetingExtractor, MeetingInfo
 from utils.timezone import get_utc_now
 
 logger = logging.getLogger(__name__)
@@ -21,9 +21,11 @@ logger = logging.getLogger(__name__)
 class MessageAnalyzer:
     """Analyzes user messages for actionable schedule information."""
     
-    def __init__(self, db: AsyncSession, meeting_extractor: Optional[MeetingExtractor] = None):
+    def __init__(self, db: AsyncSession, meeting_extractor: Optional[MeetingExtractor] = None, llm_client=None):
         self.db = db
+        self.llm_client = llm_client
         self.meeting_extractor = meeting_extractor or MeetingExtractor()
+        self.llm_meeting_extractor = LLMMeetingExtractor(llm_client) if llm_client else None
     
     async def analyze_for_schedules(
         self,
@@ -54,10 +56,22 @@ class MessageAnalyzer:
             user_tz = pytz.timezone(user.timezone or 'UTC')
             user_now = utc_now.replace(tzinfo=pytz.UTC).astimezone(user_tz).replace(tzinfo=None)
             
-            meetings = self.meeting_extractor.extract_meetings(
-                message.content,
-                reference_time=user_now
-            )
+            meetings = []
+            if self.llm_meeting_extractor:
+                try:
+                    meetings = await self.llm_meeting_extractor.extract_meetings(
+                        message.content,
+                        reference_time=user_now
+                    )
+                except Exception as e:
+                    logger.warning(f"LLM extractor failed, using regex fallback: {e}")
+                    meetings = []
+
+            if not meetings:
+                meetings = self.meeting_extractor.extract_meetings(
+                    message.content,
+                    reference_time=user_now
+                )
             
             if not meetings:
                 return created_schedules

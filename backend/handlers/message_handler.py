@@ -222,7 +222,7 @@ class MessageHandler:
                     bot_settings = result.scalar_one_or_none()
                     
                     if bot_settings:
-                        channel = source or "telegram"  # Use source parameter
+                        channel = "telegram"  # Default channel for schedule analysis
                         created_schedules = await self.message_analyzer.analyze_for_schedules(
                             user_message,
                             user_obj,
@@ -321,7 +321,7 @@ class MessageHandler:
     ) -> str:
         """Generate response with error handling and boundary checking."""
         
-        logger.info(f"🔄 Generating response for user {user_id}")
+        logger.info(f"Generating response for user {user_id}")
         
         # Log context summary for debugging
         logger.debug(f"📋 Context summary:")
@@ -377,13 +377,13 @@ class MessageHandler:
                             f"Respond to them WITHOUT mentioning this topic/behavior. "
                             f"Stay in character but avoid this completely.]"
                         )
-                        logger.debug(f"🔄 Regenerating due to boundary violation: {violated}")
+                        logger.debug(f"Regenerating due to boundary violation: {violated}")
                         continue
                     else:
                         logger.warning(f"❌ Max regeneration attempts reached after {violated} violation")
                         return "Anyway, what else is on your mind?"
                 
-                logger.info(f"✅ Response generated successfully: {response[:50]}...")
+                logger.info(f"Response generated successfully: {response[:50]}...")
                 return response
                 
             except Exception as e:
