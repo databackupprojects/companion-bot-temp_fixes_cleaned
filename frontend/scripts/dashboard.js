@@ -8,6 +8,9 @@ let userBots = [];  // Array to store all user's bots
 let activeBotIndex = 0;  // Index of currently active bot
 let currentBotId = null;  // ID of currently selected bot for chat
 let isLoggingOut = false; // flag to prevent double logout
+let lastMessageTimestamp = null;  // ISO timestamp of last displayed message
+let pollingInterval = null;       // setInterval handle for new-message polling
+const POLLING_INTERVAL_MS = 10000; // check every 10 seconds
 
 const DASH_DEBUG = !!(typeof config !== 'undefined' && config?.features?.debugMode);
 function dashLog(...args) {
@@ -256,6 +259,7 @@ function setupEventListeners() {
         chatBotSelect.addEventListener('change', async (e) => {
             const botId = e.target.value;
             if (botId) {
+                stopPolling();
                 currentBotId = botId;
                 await switchChatBot(botId);
             }
@@ -889,13 +893,14 @@ async function loadChatHistory() {
         }
         
         const data = await api.messages.getHistory(50, 0, null, currentBotId);
-        
+
         if (!data || !data.messages) {
             throw new Error('Invalid response format');
         }
-        
+
         displayChatMessages(data.messages);
-        
+        startPolling();
+
     } catch (error) {
         console.error('Error loading chat history:', error);
         // Show empty chat state
@@ -1080,17 +1085,80 @@ function displayChatMessages(messages) {
                 </button>
             </div>
         `;
+        lastMessageTimestamp = null;
         return;
     }
-    
+
     elements.chatMessages.innerHTML = '';
     messages.forEach(message => {
         const messageElement = createMessageElement(message);
         elements.chatMessages.appendChild(messageElement);
     });
-    
+
+    // Track latest message for polling
+    lastMessageTimestamp = messages[messages.length - 1].created_at;
+
     // Scroll to bottom
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+}
+
+async function pollForNewMessages() {
+    if (!currentBotId) return;
+    try {
+        const data = await api.messages.getHistory(50, 0, null, currentBotId);
+        if (!data || !data.messages || data.messages.length === 0) return;
+
+        const allMessages = data.messages;
+        const latestTs = allMessages[allMessages.length - 1].created_at;
+
+        // Use Date objects for reliable comparison regardless of ISO format differences
+        const latestDate = new Date(latestTs);
+        const lastKnownDate = lastMessageTimestamp ? new Date(lastMessageTimestamp) : null;
+
+        // Nothing new
+        if (lastKnownDate && latestDate <= lastKnownDate) return;
+
+        // Find and append only new messages
+        const newMessages = lastKnownDate
+            ? allMessages.filter(m => new Date(m.created_at) > lastKnownDate)
+            : allMessages;
+
+        if (newMessages.length === 0) return;
+
+        dashLog('[Poll] Found', newMessages.length, 'new message(s)');
+
+        // Remove empty-chat placeholder if present
+        const empty = elements.chatMessages.querySelector('.empty-chat');
+        if (empty) elements.chatMessages.innerHTML = '';
+
+        const wasAtBottom = elements.chatMessages.scrollHeight - elements.chatMessages.scrollTop
+            <= elements.chatMessages.clientHeight + 50;
+
+        newMessages.forEach(message => {
+            elements.chatMessages.appendChild(createMessageElement(message));
+        });
+
+        lastMessageTimestamp = latestTs;
+
+        // Only auto-scroll if user was already at the bottom
+        if (wasAtBottom) {
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
+    } catch (e) {
+        console.error('[Poll] Error during message polling:', e);
+    }
+}
+
+function startPolling() {
+    stopPolling();
+    pollingInterval = setInterval(pollForNewMessages, POLLING_INTERVAL_MS);
+}
+
+function stopPolling() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+    }
 }
 
 function createMessageElement(message) {
@@ -1192,8 +1260,15 @@ async function sendMessage() {
                 content: data.reply || data.response || 'Message received',
                 created_at: new Date().toISOString()
             };
-            
+
             elements.chatMessages.appendChild(createMessageElement(botMessage));
+        }
+
+        // Advance lastMessageTimestamp so the next poll doesn't re-append
+        // the messages we just displayed optimistically.
+        // Use the server's timestamp (same format as history API) for consistent comparison.
+        if (data.timestamp) {
+            lastMessageTimestamp = data.timestamp;
         }
         
         // Update message count

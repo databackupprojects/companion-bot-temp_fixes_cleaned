@@ -111,18 +111,12 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        # "http://localhost:3000",
-        # "http://localhost:8000",
-        # "http://localhost:8008",
-        # "http://localhost:8011",
-        # "http://localhost:8010",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://0.0.0.0:8001",
         # "https://bot.martofpk.com",
         # "https://www.bot.martofpk.com",
-        # "https://martofpk.com",
-        # "https://www.martofpk.com",
-        "http://0.0.0.0:8001",
-        # "https://0.0.0.0:8001",
-            # "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
