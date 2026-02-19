@@ -225,10 +225,22 @@ class ProactiveMeetingHandler:
             time_str = self._format_time(schedule.start_time, user.timezone)
             message = self._generate_preparation_message(schedule.event_name, time_str)
             
-            # Actually send to Telegram if user has telegram_id
-            if user.telegram_id and schedule.channel == 'telegram':
+            # Send to Telegram if user has telegram_id (regardless of which channel detected the meeting)
+            if user.telegram_id:
                 await self._send_to_telegram(user.telegram_id, message, archetype)
-            
+
+            # Store as a Message row so it appears in web chat history
+            import uuid as _uuid
+            web_msg = Message(
+                id=_uuid.uuid4(),
+                user_id=schedule.user_id,
+                bot_id=schedule.bot_id,
+                role='bot',
+                content=message,
+                message_type='proactive',
+            )
+            self.db.add(web_msg)
+
             # Store in proactive session
             session = ProactiveSession(
                 user_id=schedule.user_id,
@@ -274,10 +286,22 @@ class ProactiveMeetingHandler:
             # Generate completion message
             message = self._generate_completion_message(schedule.event_name)
             
-            # Actually send to Telegram if user has telegram_id
-            if user.telegram_id and schedule.channel == 'telegram':
+            # Send to Telegram if user has telegram_id (regardless of which channel detected the meeting)
+            if user.telegram_id:
                 await self._send_to_telegram(user.telegram_id, message, archetype)
-            
+
+            # Store as a Message row so it appears in web chat history
+            import uuid as _uuid
+            web_msg = Message(
+                id=_uuid.uuid4(),
+                user_id=schedule.user_id,
+                bot_id=schedule.bot_id,
+                role='bot',
+                content=message,
+                message_type='proactive',
+            )
+            self.db.add(web_msg)
+
             # Store in proactive session
             session = ProactiveSession(
                 user_id=schedule.user_id,

@@ -109,6 +109,14 @@ async def send_message(request: MessageSend, current_user: User, db: AsyncSessio
     await db.commit()
     await db.refresh(user_message)
 
+    # Extract meetings/schedules from the user's message
+    try:
+        from services.message_analyzer import MessageAnalyzer
+        analyzer = MessageAnalyzer(db, llm_client=llm_client)
+        await analyzer.analyze_for_schedules(user_message, user, settings, channel="web")
+    except Exception as e:
+        logger.error(f"Schedule analysis failed for web message: {e}", exc_info=True)
+
     response_text = await process_message_standalone(str(current_user.id), request.message, llm_client, bot_id)
 
     bot_message = Message(user_id=current_user.id, bot_id=bot_id, role="bot", content=response_text, message_type="reactive")
