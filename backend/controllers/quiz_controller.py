@@ -34,6 +34,7 @@ async def list_user_bots(current_user: User, db: AsyncSession) -> Dict[str, Any]
 
     bots = []
     used_quiz_tokens = {settings.quiz_token for settings in bot_settings_list if settings.quiz_token}
+    used_bot_ids = {str(settings.id) for settings in bot_settings_list}
 
     for settings in bot_settings_list:
         bots.append(
@@ -53,7 +54,7 @@ async def list_user_bots(current_user: User, db: AsyncSession) -> Dict[str, Any]
         )
 
     for config in quiz_configs:
-        if config.token not in used_quiz_tokens:
+        if config.token not in used_quiz_tokens and str(config.id) not in used_bot_ids:
             config_data = config.config_data if isinstance(config.config_data, dict) else {}
             bots.append(
                 {

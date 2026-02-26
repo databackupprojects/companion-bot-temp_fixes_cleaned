@@ -169,6 +169,7 @@ async def _get_bot_settings(db: AsyncSession, user_id: uuid.UUID, bot_id: Option
                     toxicity=config_data.get("toxicity", "healthy"),
                     tone_summary=quiz_config.tone_summary,
                     advanced_settings=config_data.get("advanced_settings", {}),
+                    quiz_token=quiz_config.token,
                 )
                 # Persist to bot_settings so FK constraints work for messages
                 db.add(settings)

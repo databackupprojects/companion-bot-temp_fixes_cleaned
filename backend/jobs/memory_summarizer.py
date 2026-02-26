@@ -192,11 +192,16 @@ Conversation:
 JSON array only:"""
 
         try:
-            response = await self.llm.extract_facts_from_conversation(conversation)
-            
-            if not response:
-                # Fall back to direct generation
-                response = await self.llm.generate({"prompt": prompt})
+            raw = await self.llm.client.chat.completions.create(
+                model=self.llm.model,
+                messages=[
+                    {"role": "system", "content": "You are a memory extraction assistant. Return only valid JSON arrays."},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.3,
+                max_tokens=1000,
+            )
+            response = raw.choices[0].message.content.strip() if raw and raw.choices else ""
             
             # Parse JSON from response
             if isinstance(response, str):
