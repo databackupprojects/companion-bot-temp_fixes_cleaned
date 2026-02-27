@@ -254,9 +254,15 @@
                     // Show success and redirect
                     showToast(`Welcome back, ${response.username}!`, 'success', 4000);
                     setTimeout(() => {
-                        // Admin UI is not implemented as a separate page in this frontend.
-                        // Keep navigation working by sending all roles to the main dashboard.
-                        window.location.href = 'dashboard.html';
+                        const params = new URLSearchParams(window.location.search);
+                        const redirect = params.get('redirect');
+                        if (redirect) {
+                            window.location.href = redirect;
+                        } else if (response.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
                     }, 1500);
                 }
             } catch (error) {
