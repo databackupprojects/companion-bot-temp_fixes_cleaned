@@ -37,12 +37,18 @@ function resolveApiBaseUrl() {
   if (fromStorage) return fromStorage;
 
   const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const port = window.location.port;
+  
+  // Development: use localhost with explicit port
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // Default to the local API port used by this project
     return 'http://localhost:8000';
   }
 
-  return 'http://localhost:8000';
+  // Production: use relative URLs (same origin) - nginx will proxy /api/ to backend
+  // Empty string means use the same origin as the frontend
+  // This ensures requests go to the same server (54.210.19.79) where nginx will proxy /api/ to backend
+  return '';
 }
 
 const API_BASE_URL = resolveApiBaseUrl();
@@ -204,11 +210,13 @@ function getApiUrl(resource, endpoint = null) {
   return endpoint ? `${baseUrl}/${endpoint}` : baseUrl;
 }
 
-// Log configuration only when explicitly in debug.
+// Log configuration - always show API URL for verification on live server
+const resolvedApiBase = config.api.baseURL || '(same origin)';
+const loginUrl = config.api.baseURL ? `${config.api.baseURL}/api/auth/token` : '/api/auth/token';
+const fullLoginUrl = config.api.baseURL ? loginUrl : `${window.location.origin}/api/auth/token`;
+// eslint-disable-next-line no-console
+console.log('[CONFIG] API Base:', resolvedApiBase, '| Login URL:', loginUrl, '| Full URL:', fullLoginUrl, '| Env:', config.environment);
 if (config.features.debugMode) {
   // eslint-disable-next-line no-console
-  console.log('[CONFIG] Frontend configuration loaded', {
-    environment: config.environment,
-    apiBaseUrl: config.api.baseURL,
-  });
+  console.log('[CONFIG] Full config:', { environment: config.environment, apiBaseUrl: config.api.baseURL });
 }

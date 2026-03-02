@@ -15,6 +15,7 @@ import uvicorn
 
 from utils.timezone import get_utc_now
 from core.container import container
+from constants import ENVIRONMENT
 
 # Load environment variables
 load_dotenv()
@@ -108,16 +109,29 @@ app = FastAPI(
 )
 
 # CORS configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+# Get allowed origins from environment or use defaults
+allowed_origins = os.getenv("CORS_ORIGINS", "").split(",") if os.getenv("CORS_ORIGINS") else []
+# Filter out empty strings
+allowed_origins = [origin.strip() for origin in allowed_origins if origin.strip()]
+
+# Add default origins if not in production or if list is empty
+if ENVIRONMENT != "production" or not allowed_origins:
+    default_origins = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://0.0.0.0:8001",
-        # "https://bot.martofpk.com",
-        # "https://www.bot.martofpk.com",
-    ],
+    ]
+    allowed_origins.extend(default_origins)
+
+# In production, allow all origins if CORS_ORIGINS is not set (for flexibility)
+# Or set CORS_ORIGINS="http://54.210.19.79" in .env for specific origin
+if ENVIRONMENT == "production" and not os.getenv("CORS_ORIGINS"):
+    allowed_origins.append("*")  # Allow all in production if not specified
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins if "*" not in allowed_origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

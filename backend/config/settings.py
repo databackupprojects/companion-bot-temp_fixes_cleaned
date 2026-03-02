@@ -53,6 +53,6 @@ class Settings(BaseSettings):
     greeting_night_start_hour: int = 22
     greeting_night_end_hour: int = 6
     
-    model_config = ConfigDict(env_file=".env")
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
