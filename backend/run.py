@@ -201,7 +201,7 @@ async def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler('companion_bot.log')
+            logging.FileHandler('companion_bot.log', encoding='utf-8')
         ]
     )
     

@@ -83,7 +83,7 @@ async def send_message(request: MessageSend, current_user: User, db: AsyncSessio
 
     from constants import MESSAGE_LIMITS
     daily_limit = MESSAGE_LIMITS.get(user.tier or "free", 20)
-    if user.messages_today >= daily_limit:
+    if (user.messages_today or 0) >= daily_limit:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=f"Daily message limit ({daily_limit}) reached. Upgrade for more messages.",
@@ -102,6 +102,9 @@ async def send_message(request: MessageSend, current_user: User, db: AsyncSessio
 
     if not bot_id:
         bot_id = settings.id
+
+    # Capture archetype now before any commits expire the settings object
+    bot_archetype = settings.archetype or "unknown"
 
     user_message = Message(user_id=current_user.id, bot_id=bot_id, role="user", content=request.message, message_type="reactive")
     db.add(user_message)
@@ -127,7 +130,7 @@ async def send_message(request: MessageSend, current_user: User, db: AsyncSessio
     chat_logger.log_conversation(
         user_id=str(current_user.id),
         username=current_user.username or current_user.email or "user",
-        bot_id=settings.archetype or "unknown",
+        bot_id=bot_archetype,
         user_message=request.message,
         bot_response=response_text,
         message_type="reactive",
@@ -166,7 +169,12 @@ async def _get_bot_settings(db: AsyncSession, user_id: uuid.UUID, bot_id: Option
                     toxicity=config_data.get("toxicity", "healthy"),
                     tone_summary=quiz_config.tone_summary,
                     advanced_settings=config_data.get("advanced_settings", {}),
+                    quiz_token=quiz_config.token,
                 )
+                # Persist to bot_settings so FK constraints work for messages
+                db.add(settings)
+                await db.flush()
+                logger.info(f"Auto-created BotSettings from QuizConfig {quiz_config.id} for user {user_id}")
     else:
         result = await db.execute(select(BotSettings).where(BotSettings.user_id == user_id, BotSettings.is_primary == True))
         settings = result.scalar_one_or_none()

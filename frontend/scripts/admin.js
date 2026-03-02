@@ -18,7 +18,7 @@ class AdminApp {
         // Check authentication and admin role
         const token = localStorage.getItem('access_token') || localStorage.getItem('aiCompanionToken');
         if (!token) {
-            window.location.href = 'login.html';
+            window.location.href = 'login.html?redirect=admin.html';
             return;
         }
 
@@ -48,7 +48,7 @@ class AdminApp {
             
         } catch (error) {
             console.error('Auth check failed:', error);
-            window.location.href = 'login.html';
+            window.location.href = 'login.html?redirect=admin.html';
             return;
         }
 
