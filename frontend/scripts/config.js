@@ -26,29 +26,29 @@ function resolveApiBaseUrl() {
   const fromQuery = normalizeBaseUrl(params.get('apiBase'));
   if (fromQuery) return fromQuery;
 
+  // Next: explicit override via global
   const fromWindow = normalizeBaseUrl(window.__API_BASE_URL__);
   if (fromWindow) return fromWindow;
 
+  // Next: meta tag on the page
   const meta = document.querySelector('meta[name="api-base-url"]');
   const fromMeta = normalizeBaseUrl(meta?.getAttribute('content'));
   if (fromMeta) return fromMeta;
 
+  // Next: localStorage (manual override for debugging)
   const fromStorage = normalizeBaseUrl(localStorage.getItem('api_base_url'));
   if (fromStorage) return fromStorage;
 
   const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  const port = window.location.port;
-  
-  // Development: use localhost with explicit port
+
+  // Local development: talk to local backend
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return 'http://localhost:8000';
   }
 
-  // Production: use relative URLs (same origin) - nginx will proxy /api/ to backend
-  // Empty string means use the same origin as the frontend
-  // This ensures requests go to the same server (54.210.19.79) where nginx will proxy /api/ to backend
-  return '';
+  // Default: use current origin (live server IP / domain)
+  // Ensures API calls go to whichever host is serving the frontend.
+  return window.location.origin.replace(/\/+$/, '');
 }
 
 const API_BASE_URL = resolveApiBaseUrl();

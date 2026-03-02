@@ -9,7 +9,7 @@ class AdminApp {
         this.filteredUsers = [];
         this.charts = {};
         this.refreshInterval = null;
-        this.baseURL = config?.api?.baseURL || 'http://localhost:8010';
+        this.baseURL = config.api.baseURL; // always resolved by config.js (local vs live)
         
         this.init();
     }
